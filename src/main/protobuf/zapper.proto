@@ -5,30 +5,45 @@ package zapper;
 option java_package = "eu.flatwhite.zapper.internal.protobuf.protos";
 option java_outer_classname = "ZapperProtos";
 
-// The SRecord is the basic representation of records,
-// whether they are "core" records, or "contributed" records
-// The two differs only how and where they are stored (partitions).
-// And how are connected to each other. Contributed records has lastIndexed field empty.
-// Types:
-// UTCTimestamp -- uint64 (Java long) UTC timestamp in millis
 
-message SRecord {
+// first message exchanged
+message TransferRecipe {
+  required string magic = 1 [default = "zRec"]; // transfer "magic"
+  required string transferId = 2; // transfer ID
+  required string transferTotalSize = 3; // transfer total "original" size (in bytes)
 
-  message SAttribute {
-    required string subject = 1; // attribute subject
-    required string predicate = 2; // attribute predicate
-    repeated string value = 3; // attribute 0..n values
+  message File {
+    required string fileId = 1; // file ID
+    required string path = 2; // file path
+    required int64 fileLastModified = 3; // file last modified
+    required string hashAlg = 4; // segment hash algorithm identifier
+    required bytes hashBytes = 5; // segment hash content (as bytes)
+    repeated string filters = 6; // optionally, filters applied to file as whole (in order)
   }
 
-  message SAttributes {
-    optional string key = 1; // attributes extractor key
-    repeated SAttribute attribute = 5; // attributes 1..n
+  message FileRecipe {
+    required File file = 1; // the file
+    repeated string segmentId = 2; // segment IDs in order needed to reassemble the original
   }
+  
+  repeated FileRecipe fileRecipe = 5; // the recipe for every file
+}
 
-  required string key = 1; // key of this record
-  optional uint64 recModified = 2; // UTCTimestamp - when this content was last modified or deleted if deleted==true (for incremental support)
-  optional bool recDeleted = 3; // true if deleted (for incremental support)
+// header of each track, followed by segment(s)
+message TrackHeader {
+  required string magic = 1 [default = "zTra"]; // track "magic"
+  required string transferId = 2; // transfer ID this track belongs to
+  required string trackId = 3; // track ID
+  required int64 segmentCount = 4; // segment count in track
+  repeated string filters = 5; // optionally, filters applied to track as whole (in order)
+}
 
-  repeated SAttributes attributes = 5; // record attributes
-
+// prepended to each segment, followed by (count) bytes of body, and again (or track ends)
+message SegmentHeader {
+  required string magic = 1 [default = "zSeg"]; // segment "magic"
+  required string segmentId = 2; // segment ID
+  required int64 segmentLength = 3; // segment length (in bytes)
+  required string segmentHashAlg = 4; // segment hash algorithm identifier
+  required bytes segmentHashBytes = 5; // segment hash content (as bytes)
+  repeated string filters = 6; // optionally, filters applied to segment (in order)
 }
