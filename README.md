@@ -23,6 +23,8 @@ Protocol
 
 For uploading content:
 
+0) If remote is detected as non-zapper server, Zapper Clients falls back to simple serial PUTs and GETs.
+
 1) Client: assembles the payload (that consists of single or multiple ZFiles). Calculates the "segments", and assembles the "recipe", that contains file(seg1, seg2, …) mappings for all files in the payload. Calculates hashes for all files and segments, and using those creates references in "recipe". Recipe contains the channel numbers clients want to use (configurable).
 
 2) Clien uploads the recipe to server, and waits for response.
@@ -35,4 +37,4 @@ For uploading content:
 
 6) On transfer end, client simply hangs up (as server has all the info needed to perform success validation of the transfer).
 
-7) Server, using the recipe, and by calculating checksums as it was receiving the segments, verifies that all the segments has right checksums. Then, using recipe, starts "assembling" the payload back into it's original form (file or files). Finally, it verifies that outcome (the payload) checksums matches those in the original recipe.
+7) Server, using the recipe, and by calculating checksums as it was receiving the segments, verifies that all the segments has right checksums. Then, using recipe, starts "assembling" the payload back into it's original form (file or files). Finally, it verifies that outcome (the payload) checksums matches those in the original recipe, and hands over the uploaded content to some subsystem (into what Zapper is integrated on server side).
