@@ -1,0 +1,34 @@
+// Sitemap Record
+
+package zapper;
+
+option java_package = "eu.flatwhite.zapper.internal.protobuf.protos";
+option java_outer_classname = "ZapperProtos";
+
+// The SRecord is the basic representation of records,
+// whether they are "core" records, or "contributed" records
+// The two differs only how and where they are stored (partitions).
+// And how are connected to each other. Contributed records has lastIndexed field empty.
+// Types:
+// UTCTimestamp -- uint64 (Java long) UTC timestamp in millis
+
+message SRecord {
+
+  message SAttribute {
+    required string subject = 1; // attribute subject
+    required string predicate = 2; // attribute predicate
+    repeated string value = 3; // attribute 0..n values
+  }
+
+  message SAttributes {
+    optional string key = 1; // attributes extractor key
+    repeated SAttribute attribute = 5; // attributes 1..n
+  }
+
+  required string key = 1; // key of this record
+  optional uint64 recModified = 2; // UTCTimestamp - when this content was last modified or deleted if deleted==true (for incremental support)
+  optional bool recDeleted = 3; // true if deleted (for incremental support)
+
+  repeated SAttributes attributes = 5; // record attributes
+
+}
