@@ -11,6 +11,7 @@ message TransferRecipe {
   required string magic = 1 [default = "zRec"]; // transfer "magic"
   required string transferId = 2; // transfer ID
   required string transferTotalSize = 3; // transfer total "original" size (in bytes)
+  required string transferTrackCount = 4; // transfer total count of tracks
 
   message File {
     required string fileId = 1; // file ID
@@ -26,7 +27,7 @@ message TransferRecipe {
     repeated string segmentId = 2; // segment IDs in order needed to reassemble the original
   }
   
-  repeated FileRecipe fileRecipe = 5; // the recipe for every file
+  repeated FileRecipe fileRecipe = 10; // the recipe for every file
 }
 
 // header of each track, followed by segment(s)
