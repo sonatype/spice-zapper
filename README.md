@@ -38,3 +38,9 @@ For uploading content:
 6) On transfer end, client simply hangs up (as server has all the info needed to perform success validation of the transfer).
 
 7) Server, using the recipe, and by calculating checksums as it was receiving the segments, verifies that all the segments has right checksums. Then, using recipe, starts "assembling" the payload back into it's original form (file or files). Finally, it verifies that outcome (the payload) checksums matches those in the original recipe, and hands over the uploaded content to some subsystem (into what Zapper is integrated on server side).
+
+Ideas
+-----
+
+* Filters -- filter munges the content, and might be applied per segment, per track or per whole ZFile (once assembled as whole). They might do things like compressing content, encrypting it or whatever.
+* "Optimization" -- if for some reason (ie. you send generated files), you are about to send multiple files having _same content_, Zapper will send the content only once, but generate multiple files for you at arrival.

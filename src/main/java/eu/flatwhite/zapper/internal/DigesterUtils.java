@@ -1,14 +1,17 @@
 package eu.flatwhite.zapper.internal;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 /**
  * A utility class to calculate various digests on Strings. Useful for some simple content checks.
@@ -17,7 +20,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public class DigesterUtils
 {
-
     public static final String ALG_SHA256 = "SHA-256";
 
     public static final String ALG_SHA1 = "SHA-1";
@@ -27,6 +29,41 @@ public class DigesterUtils
     public static final String CHARSET_UTF8_STRING = "UTF-8";
 
     public static final Charset CHARSET_UTF8 = Charset.forName( CHARSET_UTF8_STRING );
+
+    /**
+     * Handy method for UTs, to make a hex dump.
+     * 
+     * @param ps
+     * @param content
+     */
+    public static void dump( final PrintStream ps, final InputStream content )
+        throws IOException
+    {
+        try
+        {
+            byte[] buffer = new byte[16];
+            int numRead;
+            int line = 0;
+            do
+            {
+                numRead = content.read( buffer );
+                if ( numRead > 0 )
+                {
+                    ps.print( line + ": " );
+                    ps.print( encodeHex( Arrays.copyOf( buffer, numRead ) ) );
+//                    ps.print( " :" + line + ": " );
+//                    ps.print( new String( Arrays.copyOf( buffer, numRead ) ) );
+                    ps.println( " :" + line );
+                    line++;
+                }
+            }
+            while ( numRead != -1 );
+        }
+        finally
+        {
+            close( content );
+        }
+    }
 
     /**
      * Hex Encodes the digest value.
@@ -68,49 +105,70 @@ public class DigesterUtils
      * @return
      * @throws NoSuchAlgorithmException
      */
-    public static String getDigest( String alg, InputStream is )
-        throws NoSuchAlgorithmException
+    public static byte[] getDigest( final String alg, final InputStream is )
+        throws NoSuchAlgorithmException, IOException
     {
-        String result = null;
-
         try
         {
-            try
+            byte[] buffer = new byte[1024];
+            MessageDigest md = MessageDigest.getInstance( alg );
+            int numRead;
+
+            do
             {
-                byte[] buffer = new byte[1024];
-
-                MessageDigest md = MessageDigest.getInstance( alg );
-
-                int numRead;
-
-                do
+                numRead = is.read( buffer );
+                if ( numRead > 0 )
                 {
-                    numRead = is.read( buffer );
-
-                    if ( numRead > 0 )
-                    {
-                        md.update( buffer, 0, numRead );
-                    }
+                    md.update( buffer, 0, numRead );
                 }
-                while ( numRead != -1 );
+            }
+            while ( numRead != -1 );
 
-                result = getDigestAsString( md.digest() );
-            }
-            finally
-            {
-                is.close();
-            }
+            return md.digest();
         }
-        catch ( IOException e )
+        finally
         {
-            // hrm
-            result = null;
+            close( is );
         }
+    }
 
-        return result;
+    /**
+     * Calculates a digest for the passed in InputStream. The passed in InputStream is consumed and is closed when
+     * method returns.
+     * 
+     * @param alg
+     * @param is
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
+    public static String getDigestAsString( final String alg, final InputStream is )
+        throws NoSuchAlgorithmException, IOException
+    {
+        return getDigestAsString( getDigest( alg, is ) );
     }
 
     // SHA1
+    /**
+     * Calculates a SHA1 digest for the passed in byte array.
+     * 
+     * @param content the byte array you want SHA1 checksum.
+     * @return
+     */
+    public static byte[] getSha1Digest( final byte[] content )
+        throws IOException
+    {
+        try
+        {
+            InputStream is = new ByteArrayInputStream( content );
+
+            return getDigest( ALG_SHA1, is );
+        }
+        catch ( NoSuchAlgorithmException e )
+        {
+            // will not happen
+            return null;
+        }
+    }
 
     /**
      * Calculates a SHA1 digest for the passed in string.
@@ -118,7 +176,8 @@ public class DigesterUtils
      * @param content the string you want SHA1 checksum.
      * @return
      */
-    public static String getSha1Digest( String content )
+    public static byte[] getSha1Digest( final String content )
+        throws IOException
     {
         try
         {
@@ -139,7 +198,8 @@ public class DigesterUtils
      * @param is
      * @return
      */
-    public static String getSha1Digest( InputStream is )
+    public static byte[] getSha1Digest( final InputStream is )
+        throws IOException
     {
         try
         {
@@ -158,7 +218,8 @@ public class DigesterUtils
      * @param file
      * @return
      */
-    public static String getSha1Digest( File file )
+    public static byte[] getSha1Digest( File file )
+        throws IOException
     {
         FileInputStream fis = null;
 
@@ -192,7 +253,8 @@ public class DigesterUtils
      * @param content
      * @return
      */
-    public static String getMd5Digest( String content )
+    public static byte[] getMd5Digest( String content )
+        throws IOException
     {
         try
         {
@@ -213,7 +275,8 @@ public class DigesterUtils
      * @param is
      * @return
      */
-    public static String getMd5Digest( InputStream is )
+    public static byte[] getMd5Digest( InputStream is )
+        throws IOException
     {
         try
         {
@@ -232,7 +295,8 @@ public class DigesterUtils
      * @param file
      * @return
      */
-    public static String getMd5Digest( File file )
+    public static byte[] getMd5Digest( File file )
+        throws IOException
     {
         FileInputStream fis = null;
 
@@ -266,16 +330,16 @@ public class DigesterUtils
      * 
      * @param inputStream
      */
-    private static void close( InputStream inputStream )
+    private static void close( final Closeable closeable )
     {
-        if ( inputStream == null )
+        if ( closeable == null )
         {
             return;
         }
 
         try
         {
-            inputStream.close();
+            closeable.close();
         }
         catch ( IOException ex )
         {

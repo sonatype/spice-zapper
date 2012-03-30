@@ -4,38 +4,23 @@ import eu.flatwhite.zapper.Identifier;
 import eu.flatwhite.zapper.Range;
 
 public abstract class AbstractRange
+    extends AbstractIdentified
     implements Range
 {
-    private final Identifier identifier;
-
     private final long offset;
 
     private final long length;
 
-    protected AbstractRange( final Identifier identifier, final long offset, final long length )
+    protected AbstractRange( final Range range )
     {
-        if ( identifier == null )
-        {
-            throw new NullPointerException( "Identifier is null!" );
-        }
-        if ( offset < 0 )
-        {
-            throw new IllegalArgumentException( "Offest is less than zero!" );
-        }
-        if ( length < 1 )
-        {
-            throw new IllegalArgumentException( "Length is greater than zero!" );
-        }
-
-        this.identifier = identifier;
-        this.offset = offset;
-        this.length = length;
+        this( range.getIdentifier(), range.getOffset(), range.getLength() );
     }
 
-    @Override
-    public Identifier getIdentifier()
+    protected AbstractRange( final Identifier identifier, final long offset, final long length )
     {
-        return identifier;
+        super( identifier );
+        this.offset = Check.argument( offset >= 0, offset, "Offset is less than 0!" );
+        this.length = Check.argument( length > 0, length, "Length is less than 1!" );
     }
 
     @Override
@@ -48,5 +33,17 @@ public abstract class AbstractRange
     public long getLength()
     {
         return length;
+    }
+
+    @Override
+    public boolean matches( final Range range )
+    {
+        return ( getOffset() == range.getOffset() && getLength() == range.getLength() );
+    }
+
+    @Override
+    public boolean contains( final Range range )
+    {
+        return ( getOffset() <= range.getOffset() && getLength() >= range.getLength() );
     }
 }

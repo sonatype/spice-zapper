@@ -1,50 +1,94 @@
-// Sitemap Record
+// Zapper
 
 package zapper;
 
 option java_package = "eu.flatwhite.zapper.internal.protobuf.protos";
 option java_outer_classname = "ZapperProtos";
 
+// reused messages
+message Hash {
+  required string hashAlg = 1; // segment hash algorithm identifier
+  required bytes hashBytes = 2; // segment hash content (as bytes)
+}
 
-// first message exchanged
-message TransferRecipe {
+// vvv Recipe vvv
+
+// transfer message
+message TransferMessage {
   required string magic = 1 [default = "zRec"]; // transfer "magic"
   required string transferId = 2; // transfer ID
   required string transferTotalSize = 3; // transfer total "original" size (in bytes)
-  required string transferTrackCount = 4; // transfer total count of tracks
 
   message File {
     required string fileId = 1; // file ID
     required string path = 2; // file path
     required int64 fileLastModified = 3; // file last modified
-    required string hashAlg = 4; // segment hash algorithm identifier
-    required bytes hashBytes = 5; // segment hash content (as bytes)
-    repeated string filters = 6; // optionally, filters applied to file as whole (in order)
+    repeated Hash hashes = 4; // list of known file hashes
+    repeated string filters = 5; // optionally, filters applied to file body as whole (in order)
   }
 
-  message FileRecipe {
-    required File file = 1; // the file
+  repeated File files = 10; // the list of files
+}
+
+// segment message
+message SegmentsMessage {
+  required string magic = 1 [default = "zSeg"]; // segments "magic"
+  required string transferId = 2; // transfer ID
+
+  message Segment {
+    required string segmentId = 1; // segment ID
+    required int64 offset = 2; // segment offset from file beginning
+    required int64 length = 3; // segment length
+  }
+
+  message FileSegments {
+    required string fileId = 1; // file ID
+    repeated Segment segments = 2; // segments in order needed to reassemble the original
+  }
+
+  repeated FileSegments fileSegments = 10; // the list of file segments
+}
+
+// tracks message
+message TracksMessage {
+  required string magic = 1 [default = "zTra"]; // track "magic"
+  required string transferId = 2; // transfer ID
+
+  message Track {
+    required string trackId = 1; // track ID
     repeated string segmentId = 2; // segment IDs in order needed to reassemble the original
   }
-  
-  repeated FileRecipe fileRecipe = 10; // the recipe for every file
+
+  repeated Track tracks = 10; // the list of segments
 }
+
+// ^^^ Recipe ^^^
 
 // header of each track, followed by segment(s)
 message TrackHeader {
-  required string magic = 1 [default = "zTra"]; // track "magic"
+  required string magic = 1 [default = "zTrh"]; // track "magic"
   required string transferId = 2; // transfer ID this track belongs to
   required string trackId = 3; // track ID
   required int64 segmentCount = 4; // segment count in track
-  repeated string filters = 5; // optionally, filters applied to track as whole (in order)
+  repeated string filters = 5; // optionally, filters applied to track body as whole (in order)
+}
+
+// footer of each track, these are the last bytes before track ends
+message TrackFooter {
+  required string magic = 1 [default = "zTrf"]; // track "magic"
+  repeated Hash hashes = 2; // list of known track hashes
 }
 
 // prepended to each segment, followed by (count) bytes of body, and again (or track ends)
 message SegmentHeader {
-  required string magic = 1 [default = "zSeg"]; // segment "magic"
+  required string magic = 1 [default = "zSeh"]; // segment "magic"
   required string segmentId = 2; // segment ID
   required int64 segmentLength = 3; // segment length (in bytes)
-  required string segmentHashAlg = 4; // segment hash algorithm identifier
-  required bytes segmentHashBytes = 5; // segment hash content (as bytes)
-  repeated string filters = 6; // optionally, filters applied to segment (in order)
+  repeated string filters = 4; // optionally, filters applied to segment body (in order)
+}
+
+// appended to each segment
+message SegmentFooter {
+  required string magic = 1 [default = "zSef"]; // segment "magic"
+  repeated Hash hashes = 2; // list of known segment hashes
 }
