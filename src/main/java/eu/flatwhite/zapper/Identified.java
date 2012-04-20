@@ -1,6 +1,6 @@
 package eu.flatwhite.zapper;
 
-public interface Identified
+public interface Identified<I extends Identifier>
 {
-    Identifier getIdentifier();
+    I getIdentifier();
 }

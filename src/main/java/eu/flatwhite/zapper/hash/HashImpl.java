@@ -3,20 +3,19 @@ package eu.flatwhite.zapper.hash;
 import java.util.Arrays;
 
 import eu.flatwhite.zapper.internal.Check;
-import eu.flatwhite.zapper.internal.DigesterUtils;
 import eu.flatwhite.zapper.internal.StringIdentifier;
 
 public class HashImpl
     extends StringIdentifier
     implements Hash
 {
-    private final HashAlgorithm algorithm;
+    private final HashAlgorithmIdentifier algorithm;
 
     private final byte[] hash;
 
-    public HashImpl( final HashAlgorithm algorithm, final byte[] hash )
+    public HashImpl( final HashAlgorithmIdentifier algorithm, final byte[] hash )
     {
-        super( DigesterUtils.getDigestAsString( Check.notNull( hash, "Hash byte array is null!" ) ) );
+        super( HashUtils.encodeHexString( Check.notNull( hash, "Hash byte array is null!" ) ) );
 
         // we know hash array is not null here
         this.algorithm = Check.notNull( algorithm, "Algorithm is null!" );
@@ -25,7 +24,7 @@ public class HashImpl
     }
 
     @Override
-    public HashAlgorithm getAlgorithm()
+    public HashAlgorithmIdentifier getHashAlgorithmIdentifier()
     {
         return algorithm;
     }
@@ -43,7 +42,7 @@ public class HashImpl
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ( ( algorithm == null ) ? 0 : algorithm.hashCode() );
+        result = prime * result + algorithm.hashCode();
         result = prime * result + Arrays.hashCode( hash );
         return result;
     }
@@ -58,7 +57,7 @@ public class HashImpl
         if ( getClass() != obj.getClass() )
             return false;
         HashImpl other = (HashImpl) obj;
-        if ( !getAlgorithm().getIdentifier().stringValue().equals( other.getAlgorithm().getIdentifier().stringValue() ) )
+        if ( !getHashAlgorithmIdentifier().equals( other.getHashAlgorithmIdentifier() ) )
             return false;
         if ( !Arrays.equals( getHash(), other.getHash() ) )
             return false;

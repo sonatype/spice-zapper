@@ -1,28 +1,8 @@
 package eu.flatwhite.zapper.internal.transport;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import eu.flatwhite.zapper.IOTarget;
-import eu.flatwhite.zapper.Parameters;
-import eu.flatwhite.zapper.Range;
-import eu.flatwhite.zapper.codec.Codec;
-import eu.flatwhite.zapper.hash.Hash;
-import eu.flatwhite.zapper.hash.HashAlgorithm;
-import eu.flatwhite.zapper.hash.HashImpl;
-import eu.flatwhite.zapper.hash.HashingInputStream;
-import eu.flatwhite.zapper.internal.Check;
-import eu.flatwhite.zapper.internal.RangeImpl;
-import eu.flatwhite.zapper.internal.RangeInputStream;
-import eu.flatwhite.zapper.internal.StringIdentifier;
-import eu.flatwhite.zapper.internal.protobuf.protos.ZapperProtos.SegmentFooter;
-import eu.flatwhite.zapper.internal.protobuf.protos.ZapperProtos.SegmentHeader;
-import eu.flatwhite.zapper.internal.protobuf.protos.ZapperProtos.TrackFooter;
-import eu.flatwhite.zapper.internal.protobuf.protos.ZapperProtos.TrackHeader;
-
 public class TrackReceiver
 {
-    private final Parameters parameters;
+/*    private final Parameters parameters;
 
     private final IOTarget iotarget;
 
@@ -35,52 +15,7 @@ public class TrackReceiver
     public void receive( final InputStream trackStream )
         throws IOException
     {
-        // Needed for track hash
-        final HashingInputStream trackDigestStream = parameters.getHashAlgorithm().hashInput( trackStream );
-
-        // introduce "track input stream"
-        InputStream trackInputStream = trackDigestStream;
-
-        // read header
-        final TrackHeader trackHeader = TrackHeader.parseDelimitedFrom( trackInputStream );
-
-        // apply track-level filters
-        for ( String codecId : trackHeader.getFiltersList() )
-        {
-            final Codec codec = parameters.getCodecs().get( new StringIdentifier( codecId ) );
-            if ( codec != null )
-            {
-                trackInputStream = codec.decode( trackInputStream );
-            }
-            else
-            {
-                throw new IOException( String.format( "Codec %s needed by track %s but not available!", codecId,
-                    trackHeader.getTrackId() ) );
-            }
-        }
-
-        for ( int i = 0; i < trackHeader.getSegmentCount(); i++ )
-        {
-            final SegmentHeader segmentHeader =
-                verifySegmentHeader( SegmentHeader.parseDelimitedFrom( trackInputStream ) );
-
-            final Range segmentRange =
-                new RangeImpl( new StringIdentifier( segmentHeader.getSegmentId() ), 0,
-                    segmentHeader.getSegmentLength() );
-
-            final HashingInputStream segmentDigestStream =
-                parameters.getHashAlgorithm().hashInput( new RangeInputStream( trackInputStream, segmentRange ) );
-
-            iotarget.writeSegment( segmentRange, segmentDigestStream );
-
-            final SegmentFooter segmentFooter =
-                verifySegmentFooter( SegmentFooter.parseDelimitedFrom( trackInputStream ),
-                    segmentDigestStream.getHash() );
-
-        }
-
-        final TrackFooter trackFooter =
-            verifyTrackFooter( TrackFooter.parseDelimitedFrom( trackInputStream ), trackDigestStream.getHash() );
+        readTrack( trackStream );
     }
 
     // ==
@@ -132,7 +67,7 @@ public class TrackReceiver
         final Range segmentRange =
             new RangeImpl( new StringIdentifier( segmentHeader.getSegmentId() ), 0, segmentHeader.getSegmentLength() );
         final HashingInputStream segmentDigestStream =
-            parameters.getHashAlgorithm().hashInput( new RangeInputStream( segmentStream, segmentRange ) );
+            parameters.getHashAlgorithm().hashInput( new RangeEnforcingInputStream( segmentStream, segmentRange ) );
 
         // apply segment-level filters
         InputStream segmentInputStream = segmentDigestStream;
@@ -225,5 +160,5 @@ public class TrackReceiver
         {
             throw new IOException( message );
         }
-    }
+    }*/
 }

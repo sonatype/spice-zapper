@@ -6,6 +6,11 @@ import java.io.InputStream;
 
 import eu.flatwhite.zapper.Range;
 
+/**
+ * A filter stream that makes a sub-range of underlying stream appear on input only.
+ * 
+ * @author cstamas
+ */
 public class RangeInputStream
     extends FilterInputStream
 {
@@ -14,12 +19,6 @@ public class RangeInputStream
     private long allowedToRead;
 
     private boolean allowedToClose;
-
-    public RangeInputStream( final InputStream wrappedStream, final Range range )
-        throws IOException
-    {
-        this( wrappedStream, range, false, false );
-    }
 
     public RangeInputStream( final InputStream wrappedStream, final Range range, final boolean doSkip,
                              final boolean allowedToClose )
@@ -108,6 +107,11 @@ public class RangeInputStream
     }
 
     // ==
+
+    protected long getAllowedToRead()
+    {
+        return allowedToRead;
+    }
 
     protected int mathMin( int a, long b )
     {

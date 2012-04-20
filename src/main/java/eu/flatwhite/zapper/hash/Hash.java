@@ -5,7 +5,7 @@ import eu.flatwhite.zapper.Identifier;
 public interface Hash
     extends Identifier
 {
-    HashAlgorithm getAlgorithm();
+    HashAlgorithmIdentifier getHashAlgorithmIdentifier();
 
     byte[] getHash();
 }

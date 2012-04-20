@@ -6,12 +6,10 @@ import java.io.OutputStream;
 import eu.flatwhite.zapper.Identified;
 
 public interface HashAlgorithm
-    extends Identified
+    extends Identified<HashAlgorithmIdentifier>
 {
-    int getHashSize();
-
     Hash hash( byte[] buffer );
-
+    
     HashingInputStream hashInput( InputStream input );
 
     HashingOutputStream hashOutput( OutputStream output );

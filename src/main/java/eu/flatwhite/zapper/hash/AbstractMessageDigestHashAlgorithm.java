@@ -7,14 +7,13 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import eu.flatwhite.zapper.Identifier;
 import eu.flatwhite.zapper.internal.AbstractIdentified;
 
 public abstract class AbstractMessageDigestHashAlgorithm
-    extends AbstractIdentified
+    extends AbstractIdentified<HashAlgorithmIdentifier>
     implements HashAlgorithm
 {
-    public AbstractMessageDigestHashAlgorithm( final Identifier identifier )
+    public AbstractMessageDigestHashAlgorithm( final HashAlgorithmIdentifier identifier )
         throws NoSuchAlgorithmException
     {
         super( identifier );
@@ -24,7 +23,7 @@ public abstract class AbstractMessageDigestHashAlgorithm
     @Override
     public Hash hash( final byte[] buffer )
     {
-        return new HashImpl( this, getMessageDigest().digest( buffer ) );
+        return new HashImpl( getIdentifier(), getMessageDigest().digest( buffer ) );
     }
 
     @Override
@@ -35,7 +34,7 @@ public abstract class AbstractMessageDigestHashAlgorithm
             @Override
             public Hash getHash()
             {
-                return new HashImpl( AbstractMessageDigestHashAlgorithm.this,
+                return new HashImpl( AbstractMessageDigestHashAlgorithm.this.getIdentifier(),
                     ( (DigestInputStream) in ).getMessageDigest().digest() );
             }
         };
@@ -49,7 +48,7 @@ public abstract class AbstractMessageDigestHashAlgorithm
             @Override
             public Hash getHash()
             {
-                return new HashImpl( AbstractMessageDigestHashAlgorithm.this,
+                return new HashImpl( AbstractMessageDigestHashAlgorithm.this.getIdentifier(),
                     ( (DigestOutputStream) out ).getMessageDigest().digest() );
             }
         };

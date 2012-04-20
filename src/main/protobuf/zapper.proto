@@ -49,42 +49,16 @@ message SegmentsMessage {
   repeated FileSegments fileSegments = 10; // the list of file segments
 }
 
-// tracks message
-message TracksMessage {
-  required string magic = 1 [default = "zTra"]; // track "magic"
-  required string transferId = 2; // transfer ID
-
-  message Track {
-    required string trackId = 1; // track ID
-    repeated string segmentId = 2; // segment IDs in order needed to reassemble the original
-  }
-
-  repeated Track tracks = 10; // the list of segments
-}
-
 // ^^^ Recipe ^^^
-
-// header of each track, followed by segment(s)
-message TrackHeader {
-  required string magic = 1 [default = "zTrh"]; // track "magic"
-  required string transferId = 2; // transfer ID this track belongs to
-  required string trackId = 3; // track ID
-  required int64 segmentCount = 4; // segment count in track
-  repeated string filters = 5; // optionally, filters applied to track body as whole (in order)
-}
-
-// footer of each track, these are the last bytes before track ends
-message TrackFooter {
-  required string magic = 1 [default = "zTrf"]; // track "magic"
-  repeated Hash hashes = 2; // list of known track hashes
-}
 
 // prepended to each segment, followed by (count) bytes of body, and again (or track ends)
 message SegmentHeader {
   required string magic = 1 [default = "zSeh"]; // segment "magic"
-  required string segmentId = 2; // segment ID
-  required int64 segmentLength = 3; // segment length (in bytes)
-  repeated string filters = 4; // optionally, filters applied to segment body (in order)
+  required string fileId = 2; // file ID
+  required string segmentId = 3; // segment ID
+  required int64 segmentOffset = 4; // segment offset (in bytes) in final file
+  required int64 segmentLength = 5; // segment length (in bytes) in final file
+  repeated string filters = 6; // optionally, filters applied to segment body (in order)
 }
 
 // appended to each segment

@@ -2,14 +2,13 @@ package eu.flatwhite.zapper.codec;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import eu.flatwhite.zapper.Identified;
 
 public interface Codec
-    extends Identified
+    extends Identified<CodecIdentifier>
 {
-    OutputStream encode( OutputStream outputStream )
+    InputStream encode( InputStream inputStream )
         throws IOException;
 
     InputStream decode( InputStream inputStream )

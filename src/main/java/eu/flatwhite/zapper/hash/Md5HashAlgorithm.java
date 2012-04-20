@@ -2,13 +2,13 @@ package eu.flatwhite.zapper.hash;
 
 import java.security.NoSuchAlgorithmException;
 
-public class Sha1HashAlgorithm
+public class Md5HashAlgorithm
     extends AbstractMessageDigestHashAlgorithm
     implements HashAlgorithm
 {
-    public static final HashAlgorithmIdentifier ID = new HashAlgorithmIdentifierImpl( "SHA-1", 20 );
+    public static final HashAlgorithmIdentifier ID = new HashAlgorithmIdentifierImpl( "MD5", 16 );
 
-    public Sha1HashAlgorithm()
+    public Md5HashAlgorithm()
         throws NoSuchAlgorithmException
     {
         super( ID );

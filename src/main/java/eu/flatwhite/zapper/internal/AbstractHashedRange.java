@@ -1,6 +1,5 @@
 package eu.flatwhite.zapper.internal;
 
-import eu.flatwhite.zapper.Identifier;
 import eu.flatwhite.zapper.Range;
 import eu.flatwhite.zapper.hash.Hash;
 import eu.flatwhite.zapper.hash.Hashed;
@@ -17,9 +16,9 @@ public abstract class AbstractHashedRange
         this.hash = Check.notNull( hash, "Hash is null!" );
     }
 
-    protected AbstractHashedRange( final Identifier identifier, final long offset, final long length, final Hash hash )
+    protected AbstractHashedRange( final long offset, final long length, final Hash hash )
     {
-        super( identifier, offset, length );
+        super( offset, length );
         this.hash = Check.notNull( hash, "Hash is null!" );
     }
 
@@ -27,5 +26,13 @@ public abstract class AbstractHashedRange
     public Hash getHash()
     {
         return hash;
+    }
+
+    // ==
+
+    @Override
+    public String toString()
+    {
+        return super.toString() + "(hash=" + getHash() + ")";
     }
 }

@@ -1,42 +1,25 @@
 package eu.flatwhite.zapper.internal.transport;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import com.google.protobuf.ByteString;
-
-import eu.flatwhite.zapper.IO;
-import eu.flatwhite.zapper.Parameters;
-import eu.flatwhite.zapper.codec.Codec;
-import eu.flatwhite.zapper.hash.Hash;
-import eu.flatwhite.zapper.hash.HashingOutputStream;
-import eu.flatwhite.zapper.internal.Check;
-import eu.flatwhite.zapper.internal.NonClosingOutputStream;
-import eu.flatwhite.zapper.internal.Track;
-import eu.flatwhite.zapper.internal.TrackSegment;
-import eu.flatwhite.zapper.internal.protobuf.protos.ZapperProtos.SegmentFooter;
-import eu.flatwhite.zapper.internal.protobuf.protos.ZapperProtos.SegmentHeader;
-import eu.flatwhite.zapper.internal.protobuf.protos.ZapperProtos.TrackFooter;
-import eu.flatwhite.zapper.internal.protobuf.protos.ZapperProtos.TrackHeader;
-
 public class TrackSender
 {
-    private final Parameters parameters;
+/*    private final Parameters parameters;
 
     private final IO io;
 
-    public TrackSender( final Parameters parameters, final IO io )
+    private final Track track;
+
+    public TrackSender( final Parameters parameters, final IO io, final Track track )
     {
         this.parameters = Check.notNull( parameters, "Parameters is null!" );
         this.io = Check.notNull( io, "IO is null!" );
+        this.track = Check.notNull( track, "Track is null!" );
     }
 
-    public void send( final Track track, final OutputStream trackStream )
+    public void send( final OutputStream trackStream )
         throws IOException
     {
         // write track
-        writeTrack( track, trackStream );
+        writeTrack( trackStream );
 
         // flush
         trackStream.flush();
@@ -44,7 +27,7 @@ public class TrackSender
 
     // ==
 
-    protected void writeTrack( final Track track, final OutputStream trackStream )
+    protected void writeTrack( final OutputStream trackStream )
         throws IOException
     {
         // write raw header
@@ -61,7 +44,7 @@ public class TrackSender
         }
 
         // write segments one by one
-        for ( TrackSegment segment : track.getTrackSegments() )
+        for ( Segment segment : track.getTrackSegments() )
         {
             writeSegment( segment, trackOutputStream );
         }
@@ -73,7 +56,7 @@ public class TrackSender
         createTrackFooter( track, trackDigestStream.getHash() ).writeDelimitedTo( trackStream );
     }
 
-    protected void writeSegment( final TrackSegment segment, final OutputStream segmentStream )
+    protected void writeSegment( final Segment segment, final OutputStream segmentStream )
         throws IOException
     {
         // write raw header
@@ -90,7 +73,7 @@ public class TrackSender
         }
 
         // write the body to coded output
-        copy( io.readFileSegment( segment.getZFile(), segment ), segmentOutputStream );
+        copy( io.readFileSegment( segment.getZFileRange().getZFile(), segment.getZFileRange() ), segmentOutputStream );
 
         // needed for codecs (to do padding or whatever needed)
         segmentOutputStream.close();
@@ -124,11 +107,11 @@ public class TrackSender
         return trackFooterBuilder.build();
     }
 
-    protected SegmentHeader createSegmentHeader( final TrackSegment trackSegment )
+    protected SegmentHeader createSegmentHeader( final Segment trackSegment )
     {
         final SegmentHeader.Builder segmentHeaderBuilder =
             SegmentHeader.newBuilder().setSegmentId( trackSegment.getIdentifier().stringValue() ).setSegmentLength(
-                trackSegment.getLength() );
+                trackSegment.getZFileRange().getLength() );
         for ( Codec filter : trackSegment.getSegmentFilters() )
         {
             segmentHeaderBuilder.addFilters( filter.getIdentifier().stringValue() );
@@ -137,7 +120,7 @@ public class TrackSender
         return segmentHeaderBuilder.build();
     }
 
-    protected SegmentFooter createSegmentFooter( final TrackSegment trackSegment, final Hash segmentHash )
+    protected SegmentFooter createSegmentFooter( final Segment trackSegment, final Hash segmentHash )
     {
         final eu.flatwhite.zapper.internal.protobuf.protos.ZapperProtos.Hash hash =
             eu.flatwhite.zapper.internal.protobuf.protos.ZapperProtos.Hash.newBuilder().setHashAlg(
@@ -170,5 +153,5 @@ public class TrackSender
         {
             out.flush();
         }
-    }
+    }*/
 }
