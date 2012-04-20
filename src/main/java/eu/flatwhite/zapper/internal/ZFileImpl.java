@@ -12,9 +12,9 @@ public class ZFileImpl
 
     private final long lastModified;
 
-    public ZFileImpl( final Path path, final long length, final long lastModified, final Hash hash )
+    public ZFileImpl( final Path path, final long length, final long lastModified, final Hash... hashes )
     {
-        super( 0, length, hash );
+        super( 0, length, hashes );
         this.path = Check.notNull( path, "Path is null!" );
         this.lastModified = lastModified;
     }

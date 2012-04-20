@@ -9,11 +9,6 @@ public abstract class AbstractRange
 
     private final long length;
 
-    protected AbstractRange( final Range range )
-    {
-        this( range.getOffset(), range.getLength() );
-    }
-
     protected AbstractRange( final long offset, final long length )
     {
         this.offset = Check.argument( offset >= 0, offset, "Offset is less than 0!" );

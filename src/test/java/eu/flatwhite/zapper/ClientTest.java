@@ -12,7 +12,6 @@ import com.ning.http.client.Realm.AuthScheme;
 import eu.flatwhite.zapper.client.Client;
 import eu.flatwhite.zapper.client.ahc.AhcClient;
 import eu.flatwhite.zapper.fs.DirectoryIOSource;
-import eu.flatwhite.zapper.hash.Sha1HashAlgorithm;
 import eu.flatwhite.zapper.internal.ParametersImpl;
 
 public class ClientTest
@@ -29,11 +28,9 @@ public class ClientTest
         final AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder().setRealm( realm ).build();
         final AsyncHttpClient asyncHttpClient = new AsyncHttpClient( config );
         final Client client =
-            new AhcClient( parameters, "http://localhost:8081/nexus/content/repositories/thirdparty/foo/",
-                asyncHttpClient );
+            new AhcClient( parameters, "http://localhost:8081/nexus/content/repositories/thirdparty/", asyncHttpClient );
         final IOSourceListable directory =
-            new DirectoryIOSource( new File( "/Users/cstamas/Worx/flatwhite/zapper/target/classes" ),
-                parameters.getHashAlgorithms().get( Sha1HashAlgorithm.ID ) );
+            new DirectoryIOSource( new File( "/Users/cstamas/Worx/flatwhite/zapper/target/classes" ) );
 
         try
         {

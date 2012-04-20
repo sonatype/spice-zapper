@@ -12,7 +12,7 @@ public interface IOSource
      * @return
      * @throws IOException
      */
-    public ZFile createZFile( final Path path )
+    ZFile createZFile( final Path path )
         throws IOException;
 
     /**

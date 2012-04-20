@@ -18,8 +18,8 @@ public class Playground
         throws Exception
     {
         final IOSourceListable directory =
-            new DirectoryIOSource( new File( "/Users/cstamas/Worx/flatwhite/zapper/target/classes" ),
-                new Sha1HashAlgorithm() );
+            new DirectoryIOSource( new File( "/Users/cstamas/Worx/flatwhite/zapper/target/classes" ));//,
+                //new Sha1HashAlgorithm() );
 
         List<ZFile> zfiles = directory.listFiles();
 

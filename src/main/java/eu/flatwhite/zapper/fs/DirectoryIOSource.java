@@ -28,17 +28,43 @@ public class DirectoryIOSource
 {
     private final HashStrategy hashStrategy;
 
+    /**
+     * Creates source that will source ZFiles without hashes.
+     * 
+     * @param root
+     * @throws IOException
+     */
+    public DirectoryIOSource( final File root )
+        throws IOException
+    {
+        this( root, (HashStrategy) null );
+    }
+
+    /**
+     * Creates source that will calculate hashes before creating ZFiles.
+     * 
+     * @param root
+     * @param hashAlgorithm
+     * @throws IOException
+     */
     public DirectoryIOSource( final File root, final HashAlgorithm hashAlgorithm )
         throws IOException
     {
         this( root, new CalculateHashStrategy( hashAlgorithm ) );
     }
 
+    /**
+     * Creates source that will use given strategy to get hashes when creating ZFiles.
+     * 
+     * @param root
+     * @param hashStrategy
+     * @throws IOException
+     */
     public DirectoryIOSource( final File root, final HashStrategy hashStrategy )
         throws IOException
     {
         super( root );
-        this.hashStrategy = Check.notNull( hashStrategy, HashStrategy.class );
+        this.hashStrategy = hashStrategy;
     }
 
     @Override
@@ -93,7 +119,12 @@ public class DirectoryIOSource
     public ZFile createZFile( final Path path, final File file )
         throws IOException
     {
-        return createZFile( path, file, hashStrategy.getHashFor( file ) );
+        Hash hash = null;
+        if ( hashStrategy != null )
+        {
+            hash = hashStrategy.getHashFor( file );
+        }
+        return createZFile( path, file, hash );
     }
 
     public ZFile createZFile( final Path path, final File file, final Hash hash )
@@ -101,11 +132,17 @@ public class DirectoryIOSource
     {
         Check.notNull( path, Path.class );
         Check.notNull( file, File.class );
-        Check.notNull( hash, Hash.class );
         // this is "source", we expect to create ZFiles based on existing files
         if ( file.isFile() )
         {
-            return new ZFileImpl( path, file.length(), file.lastModified(), hash );
+            if ( hash != null )
+            {
+                return new ZFileImpl( path, file.length(), file.lastModified(), hash );
+            }
+            else
+            {
+                return new ZFileImpl( path, file.length(), file.lastModified() );
+            }
         }
         else
         {

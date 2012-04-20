@@ -1,31 +1,32 @@
 package eu.flatwhite.zapper.internal;
 
-import eu.flatwhite.zapper.Range;
+import java.util.HashMap;
+import java.util.Map;
+
 import eu.flatwhite.zapper.hash.Hash;
+import eu.flatwhite.zapper.hash.HashAlgorithmIdentifier;
 import eu.flatwhite.zapper.hash.Hashed;
 
 public abstract class AbstractHashedRange
     extends AbstractRange
     implements Hashed
 {
-    private final Hash hash;
+    private final Map<HashAlgorithmIdentifier, Hash> hashMap;
 
-    protected AbstractHashedRange( final Range range, final Hash hash )
-    {
-        super( range );
-        this.hash = Check.notNull( hash, "Hash is null!" );
-    }
-
-    protected AbstractHashedRange( final long offset, final long length, final Hash hash )
+    protected AbstractHashedRange( final long offset, final long length, final Hash... hashes )
     {
         super( offset, length );
-        this.hash = Check.notNull( hash, "Hash is null!" );
+        this.hashMap = new HashMap<HashAlgorithmIdentifier, Hash>( hashes.length );
+        for ( Hash hash : hashes )
+        {
+            hashMap.put( hash.getHashAlgorithmIdentifier(), hash );
+        }
     }
 
     @Override
-    public Hash getHash()
+    public Hash getHash( final HashAlgorithmIdentifier hashAlgorithmIdentifier )
     {
-        return hash;
+        return hashMap.get( hashAlgorithmIdentifier );
     }
 
     // ==
@@ -33,6 +34,6 @@ public abstract class AbstractHashedRange
     @Override
     public String toString()
     {
-        return super.toString() + "(hash=" + getHash() + ")";
+        return super.toString() + "(hashMap=" + hashMap + ")";
     }
 }

@@ -3,38 +3,29 @@ package eu.flatwhite.zapper.internal.transport;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-
-import org.sonatype.sisu.charger.ChargeFuture;
-import org.sonatype.sisu.charger.Charger;
-import org.sonatype.sisu.charger.ExceptionHandler;
-import org.sonatype.sisu.charger.internal.AllArrivedChargeStrategy;
-import org.sonatype.sisu.charger.internal.DefaultCharger;
 
 import eu.flatwhite.zapper.IOSource;
 import eu.flatwhite.zapper.IOSourceListable;
 import eu.flatwhite.zapper.IOTarget;
-import eu.flatwhite.zapper.Identifier;
 import eu.flatwhite.zapper.Parameters;
 import eu.flatwhite.zapper.Path;
 import eu.flatwhite.zapper.ZFile;
 import eu.flatwhite.zapper.client.Client;
 import eu.flatwhite.zapper.internal.Check;
-import eu.flatwhite.zapper.internal.PayloadSupplier;
-import eu.flatwhite.zapper.internal.StringIdentifier;
-import eu.flatwhite.zapper.internal.WholeFilePayloadSupplier;
+import eu.flatwhite.zapper.internal.Protocol;
+import eu.flatwhite.zapper.internal.protocol.WholeZFileProtocol;
 
 public abstract class AbstractClient
     implements Client
 {
     private final Parameters parameters;
 
-    private final Charger charger;
+    private final Protocol protocol;
 
     public AbstractClient( final Parameters parameters )
     {
         this.parameters = Check.notNull( parameters, Parameters.class );
-        this.charger = new DefaultCharger();
+        this.protocol = handshake();
     }
 
     @Override
@@ -63,65 +54,26 @@ public abstract class AbstractClient
         throw new UnsupportedOperationException( "Not implemented!" );
     }
 
-    protected void upload( final IOSource source, final List<ZFile> zfiles )
-        throws IOException
+    // ==
+
+    protected Parameters getParameters()
     {
-        final PayloadSupplier payloadSupplier = getPayloadSupplier( source, zfiles );
-        final int trackCount = Math.max( parameters.getMaximumSessionCount(), zfiles.size() );
-        final List<Callable<State>> tracks = new ArrayList<Callable<State>>( trackCount );
-        final SimpleCallableExecutor simpleCallableExecutor =
-            new SimpleCallableExecutor( parameters.getMaximumSessionCount() );
-        for ( int i = 0; i < trackCount; i++ )
-        {
-            tracks.add( createCallable( new StringIdentifier( String.valueOf( i ) ), payloadSupplier ) );
-        }
+        return parameters;
+    }
 
-        ChargeFuture<State> chargeFuture =
-            charger.submit( tracks, getExceptionHandler(), new AllArrivedChargeStrategy<State>(),
-                simpleCallableExecutor );
-
-        try
-        {
-            chargeFuture.getResult();
-        }
-        catch ( IOException e )
-        {
-            if ( e.getCause() == null )
-            {
-                throw new IOException( "IO failure", e );
-            }
-            throw e;
-        }
-        catch ( Exception e )
-        {
-            throw new IOException( e );
-        }
-        finally
-        {
-            simpleCallableExecutor.shutdown();
-        }
+    protected Protocol getProtocol()
+    {
+        return protocol;
     }
 
     // ==
 
-    protected abstract AbstractTrack createCallable( final Identifier identifier, final PayloadSupplier payloadSupplier );
-
-    protected PayloadSupplier getPayloadSupplier( final IOSource source, final List<ZFile> zfiles )
+    protected Protocol handshake()
     {
-        return new WholeFilePayloadSupplier( source, zfiles );
+        // safest, we will see later for real handshake
+        return new WholeZFileProtocol();
     }
 
-    protected static ExceptionHandler NON_HANDLING_EXCEPTION_HANDLER = new ExceptionHandler()
-    {
-        @Override
-        public boolean handle( Exception ex )
-        {
-            return false;
-        }
-    };
-
-    protected ExceptionHandler getExceptionHandler()
-    {
-        return NON_HANDLING_EXCEPTION_HANDLER;
-    }
+    protected abstract void upload( final IOSource source, final List<ZFile> zfiles )
+        throws IOException;
 }
