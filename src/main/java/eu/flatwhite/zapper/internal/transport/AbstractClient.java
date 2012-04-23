@@ -32,10 +32,18 @@ public abstract class AbstractClient
 
     private final Parameters parameters;
 
-    public AbstractClient( final Parameters parameters )
+    private final String remoteUrl;
+
+    public AbstractClient( final Parameters parameters, final String remoteUrl )
     {
         this.logger = LoggerFactory.getLogger( getClass() );
         this.parameters = Check.notNull( parameters, Parameters.class );
+        this.remoteUrl = Check.notNull( remoteUrl, "Remote URL is null!" );
+    }
+
+    public String getRemoteUrl()
+    {
+        return remoteUrl;
     }
 
     @Override
@@ -73,9 +81,10 @@ public abstract class AbstractClient
             protocol.getIdentifier().stringValue() );
 
         final List<Segment> segments = protocol.getSegmentCreator( transferId ).createSegments( zfiles );
-        final int trackCount = Math.min( getParameters().getMaximumSessionCount(), segments.size() );
+        final int trackCount = Math.min( getParameters().getMaximumTrackCount(), segments.size() );
 
-        final List<Payload> payloads = protocol.getPayloadCreator( transferId ).createPayloads( source, segments );
+        final List<Payload> payloads =
+            protocol.getPayloadCreator( transferId ).createPayloads( source, segments, getRemoteUrl() );
         final PayloadSupplier payloadSupplier = new PayloadSupplierImpl( payloads );
 
         long totalSize = 0;

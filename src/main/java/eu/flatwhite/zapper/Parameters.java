@@ -24,16 +24,16 @@ public interface Parameters
     Map<CodecIdentifier, Codec> getCodecs();
 
     /**
-     * How many parallel sessions ("connections") might exist during uploads/downloads. This is a hard maximum, that
-     * does not have to be reached, but will never be more than this value. Naturally, having value of 1 would mean
+     * How many parallel tracks ("connections") might exist during uploads/downloads. This is a hard maximum, that does
+     * not have to be reached, but will never be more than this value. Naturally, having value of 1 would mean
      * "sequential upload" in this sense, and is a valid value.
      * 
      * @return
      */
-    int getMaximumSessionCount();
+    int getMaximumTrackCount();
 
     /**
-     * Gets the maximum segment length.
+     * Gets the maximum segment length. Not all protocols uses this, for example "whole-file" does not use this value.
      * 
      * @return
      */

@@ -5,6 +5,13 @@ import java.io.IOException;
 public interface Client
 {
     /**
+     * Returns the base URL of this handle.
+     * 
+     * @return
+     */
+    String getRemoteUrl();
+
+    /**
      * Uploads all that listable source lists.
      * 
      * @param listableSource

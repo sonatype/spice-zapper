@@ -28,9 +28,9 @@ public abstract class AbstractChargerClient
 {
     private final Charger charger;
 
-    public AbstractChargerClient( final Parameters parameters )
+    public AbstractChargerClient( final Parameters parameters, final String remoteUrl )
     {
-        super( parameters );
+        super( parameters, remoteUrl );
         this.charger = new DefaultCharger();
     }
 

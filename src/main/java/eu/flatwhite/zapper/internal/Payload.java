@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import eu.flatwhite.zapper.Identifier;
-import eu.flatwhite.zapper.Path;
 
 public interface Payload
 {
     Identifier getTransferIdentifier();
-    
-    Path getPath();
-    
+
+    String getUrl();
+
     long getLength();
 
     InputStream getContent()

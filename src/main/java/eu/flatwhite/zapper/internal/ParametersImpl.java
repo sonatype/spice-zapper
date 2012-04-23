@@ -1,6 +1,5 @@
 package eu.flatwhite.zapper.internal;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,19 +9,27 @@ import eu.flatwhite.zapper.codec.Codec;
 import eu.flatwhite.zapper.codec.CodecIdentifier;
 import eu.flatwhite.zapper.hash.HashAlgorithm;
 import eu.flatwhite.zapper.hash.HashAlgorithmIdentifier;
-import eu.flatwhite.zapper.hash.Sha1HashAlgorithm;
 
 public class ParametersImpl
     implements Parameters
 {
     private final Map<HashAlgorithmIdentifier, HashAlgorithm> hashAlgorithms;
 
-    public ParametersImpl()
-        throws NoSuchAlgorithmException
+    private final Map<CodecIdentifier, Codec> codecs;
+
+    private final int maximumTrackCount;
+
+    private final long maximumSegmentLength;
+
+    public ParametersImpl( final Map<HashAlgorithmIdentifier, HashAlgorithm> hashAlgorithms,
+                           final Map<CodecIdentifier, Codec> codecs, final int maximumTrackCount,
+                           final long maximumSegmentLength )
     {
-        super();
-        this.hashAlgorithms = new HashMap<HashAlgorithmIdentifier, HashAlgorithm>( 1 );
-        this.hashAlgorithms.put( Sha1HashAlgorithm.ID, new Sha1HashAlgorithm() );
+        this.hashAlgorithms =
+            Collections.unmodifiableMap( new HashMap<HashAlgorithmIdentifier, HashAlgorithm>( hashAlgorithms ) );
+        this.codecs = Collections.unmodifiableMap( new HashMap<CodecIdentifier, Codec>( codecs ) );
+        this.maximumTrackCount = maximumTrackCount;
+        this.maximumSegmentLength = maximumSegmentLength;
     }
 
     @Override
@@ -34,18 +41,18 @@ public class ParametersImpl
     @Override
     public Map<CodecIdentifier, Codec> getCodecs()
     {
-        return Collections.emptyMap();
+        return codecs;
     }
 
     @Override
-    public int getMaximumSessionCount()
+    public int getMaximumTrackCount()
     {
-        return 6;
+        return maximumTrackCount;
     }
 
     @Override
     public long getMaximumSegmentLength()
     {
-        return 1024L;
+        return maximumSegmentLength;
     }
 }

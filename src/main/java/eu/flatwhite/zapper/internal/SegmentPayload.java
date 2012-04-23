@@ -5,7 +5,6 @@ import java.io.InputStream;
 
 import eu.flatwhite.zapper.IOSource;
 import eu.flatwhite.zapper.Identifier;
-import eu.flatwhite.zapper.Path;
 import eu.flatwhite.zapper.codec.Codec;
 
 public class SegmentPayload
@@ -13,17 +12,17 @@ public class SegmentPayload
 {
     private final Identifier transferIdentifier;
 
-    private final Path path;
+    private final String url;
 
     private final Segment segment;
 
     private final IOSource ioSource;
 
-    public SegmentPayload( final Identifier transferIdentifier, final Path path, final Segment segment,
+    public SegmentPayload( final Identifier transferIdentifier, final String url, final Segment segment,
                            final IOSource ioSource )
     {
         this.transferIdentifier = transferIdentifier;
-        this.path = path;
+        this.url = url;
         this.segment = segment;
         this.ioSource = ioSource;
     }
@@ -35,9 +34,9 @@ public class SegmentPayload
     }
 
     @Override
-    public Path getPath()
+    public String getUrl()
     {
-        return path;
+        return url;
     }
 
     @Override

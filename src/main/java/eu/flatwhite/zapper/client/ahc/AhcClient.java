@@ -3,12 +3,11 @@ package eu.flatwhite.zapper.client.ahc;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
 import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.Request;
+import com.ning.http.client.ProxyServer;
+import com.ning.http.client.Realm;
 import com.ning.http.client.Response;
 
 import eu.flatwhite.zapper.Parameters;
@@ -23,18 +22,24 @@ public class AhcClient
     extends AbstractClient
     implements Executor
 {
-    private final Logger logger;
-
     private final AsyncHttpClient asyncHttpClient;
 
-    private final String remoteUrl;
+    private final Realm realm;
+
+    private final ProxyServer proxyServer;
 
     public AhcClient( final Parameters parameters, final String remoteUrl, final AsyncHttpClient asyncHttpClient )
     {
-        super( parameters );
-        this.logger = LoggerFactory.getLogger( getClass() );
+        this( parameters, remoteUrl, asyncHttpClient, null, null );
+    }
+
+    public AhcClient( final Parameters parameters, final String remoteUrl, final AsyncHttpClient asyncHttpClient,
+                      final Realm realm, final ProxyServer proxyServer )
+    {
+        super( parameters, remoteUrl );
         this.asyncHttpClient = Check.notNull( asyncHttpClient, AsyncHttpClient.class );
-        this.remoteUrl = Check.notNull( remoteUrl, "Remote URL is null!" );
+        this.realm = realm;
+        this.proxyServer = proxyServer;
     }
 
     @Override
@@ -44,11 +49,6 @@ public class AhcClient
     }
 
     // ==
-
-    protected Logger getLogger()
-    {
-        return logger;
-    }
 
     @Override
     protected void doUpload( final Protocol protocol, final int trackCount, final PayloadSupplier payloadSupplier )
@@ -80,11 +80,18 @@ public class AhcClient
     protected ListenableFuture<Response> upload( final Payload payload, final AhcTrack ahcTrack )
         throws IOException
     {
-        final String url = remoteUrl + payload.getPath().stringValue();
-        final Request request =
-            asyncHttpClient.preparePut( url ).setBody( new ZapperBodyGenerator( payload ) ).setHeader(
-                "X-Zapper-Transfer-ID", payload.getTransferIdentifier().stringValue() ).build();
-        return asyncHttpClient.executeRequest( request );
+        final BoundRequestBuilder requestBuilder =
+            asyncHttpClient.preparePut( payload.getUrl() ).setBody( new ZapperBodyGenerator( payload ) ).setHeader(
+                "X-Zapper-Transfer-ID", payload.getTransferIdentifier().stringValue() );
+        if ( realm != null )
+        {
+            requestBuilder.setRealm( realm );
+        }
+        if ( proxyServer != null )
+        {
+            requestBuilder.setProxyServer( proxyServer );
+        }
+        return asyncHttpClient.executeRequest( requestBuilder.build() );
     }
 
     @Override

@@ -26,12 +26,13 @@ public class WholeZFilePayloadCreator
     }
 
     @Override
-    public List<Payload> createPayloads( IOSource source, List<Segment> segments )
+    public List<Payload> createPayloads( IOSource source, List<Segment> segments, String remoteUrl )
     {
         final ArrayList<Payload> payloads = new ArrayList<Payload>( segments.size() );
         for ( Segment segment : segments )
         {
-            payloads.add( new SegmentPayload( getIdentifier(), segment.getZFile().getIdentifier(), segment, source ) );
+            payloads.add( new SegmentPayload( getIdentifier(), remoteUrl
+                + segment.getZFile().getIdentifier().stringValue(), segment, source ) );
         }
         return payloads;
     }
