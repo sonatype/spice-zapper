@@ -59,9 +59,21 @@ public class AhcClient
         {
             tracks[i] = new AhcTrack( new StringIdentifier( String.valueOf( i ) ), this, payloadSupplier );
         }
+        final IOException[] trackExceptions = new IOException[trackCount];
+        boolean success = true;
         for ( int i = 0; i < trackCount; i++ )
         {
             tracks[i].waitUntilDone();
+            if ( tracks[i].getException() != null )
+            {
+                success = false;
+                trackExceptions[i] = tracks[i].getException();
+            }
+        }
+
+        if ( !success )
+        {
+            throw new AggregatingIOException( "Upload failed!", trackExceptions );
         }
     }
 

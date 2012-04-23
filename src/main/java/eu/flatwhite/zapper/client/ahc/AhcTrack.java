@@ -54,7 +54,6 @@ public class AhcTrack
     }
 
     protected void waitUntilDone()
-        throws IOException
     {
         try
         {
@@ -63,11 +62,6 @@ public class AhcTrack
         catch ( InterruptedException e )
         {
             // nothing
-        }
-
-        if ( exception != null )
-        {
-            throw exception;
         }
     }
 
