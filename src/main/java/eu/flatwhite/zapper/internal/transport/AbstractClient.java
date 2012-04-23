@@ -3,17 +3,24 @@ package eu.flatwhite.zapper.internal.transport;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import eu.flatwhite.zapper.Client;
 import eu.flatwhite.zapper.IOSource;
 import eu.flatwhite.zapper.IOSourceListable;
 import eu.flatwhite.zapper.IOTarget;
+import eu.flatwhite.zapper.Identifier;
 import eu.flatwhite.zapper.Parameters;
 import eu.flatwhite.zapper.Path;
 import eu.flatwhite.zapper.ZFile;
-import eu.flatwhite.zapper.client.Client;
 import eu.flatwhite.zapper.internal.Check;
+import eu.flatwhite.zapper.internal.Payload;
+import eu.flatwhite.zapper.internal.PayloadSupplier;
+import eu.flatwhite.zapper.internal.PayloadSupplierImpl;
 import eu.flatwhite.zapper.internal.Protocol;
-import eu.flatwhite.zapper.internal.protocol.WholeZFileProtocol;
+import eu.flatwhite.zapper.internal.Segment;
+import eu.flatwhite.zapper.internal.StringIdentifier;
+import eu.flatwhite.zapper.internal.wholefile.WholeZFileProtocol;
 
 public abstract class AbstractClient
     implements Client
@@ -54,6 +61,18 @@ public abstract class AbstractClient
         throw new UnsupportedOperationException( "Not implemented!" );
     }
 
+    protected void upload( final IOSource source, final List<ZFile> zfiles )
+        throws IOException
+    {
+        final Identifier transferId = new StringIdentifier( UUID.randomUUID().toString() );
+        final Protocol protocol = getProtocol();
+        final List<Segment> segments = protocol.getSegmentCreator( transferId ).createSegments( zfiles );
+        final List<Payload> payloads = protocol.getPayloadCreator( transferId ).createPayloads( source, segments );
+        final PayloadSupplier payloadSupplier = new PayloadSupplierImpl( payloads );
+        final int trackCount = Math.min( getParameters().getMaximumSessionCount(), zfiles.size() );
+        doUpload( protocol, trackCount, payloadSupplier );
+    }
+
     // ==
 
     protected Parameters getParameters()
@@ -74,6 +93,7 @@ public abstract class AbstractClient
         return new WholeZFileProtocol();
     }
 
-    protected abstract void upload( final IOSource source, final List<ZFile> zfiles )
+    protected abstract void doUpload( final Protocol protocol, final int trackCount,
+                                      final PayloadSupplier payloadSupplier )
         throws IOException;
 }

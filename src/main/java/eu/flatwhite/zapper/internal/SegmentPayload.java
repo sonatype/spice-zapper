@@ -4,23 +4,34 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import eu.flatwhite.zapper.IOSource;
+import eu.flatwhite.zapper.Identifier;
 import eu.flatwhite.zapper.Path;
 import eu.flatwhite.zapper.codec.Codec;
 
 public class SegmentPayload
     implements Payload
 {
+    private final Identifier transferIdentifier;
+
     private final Path path;
 
     private final Segment segment;
 
     private final IOSource ioSource;
 
-    public SegmentPayload( final Path path, final Segment segment, final IOSource ioSource )
+    public SegmentPayload( final Identifier transferIdentifier, final Path path, final Segment segment,
+                           final IOSource ioSource )
     {
+        this.transferIdentifier = transferIdentifier;
         this.path = path;
         this.segment = segment;
         this.ioSource = ioSource;
+    }
+
+    @Override
+    public Identifier getTransferIdentifier()
+    {
+        return transferIdentifier;
     }
 
     @Override

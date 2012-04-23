@@ -9,7 +9,6 @@ import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.Realm;
 import com.ning.http.client.Realm.AuthScheme;
 
-import eu.flatwhite.zapper.client.Client;
 import eu.flatwhite.zapper.client.ahc.AhcClient;
 import eu.flatwhite.zapper.fs.DirectoryIOSource;
 import eu.flatwhite.zapper.internal.ParametersImpl;

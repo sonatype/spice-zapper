@@ -1,11 +1,6 @@
-package eu.flatwhite.zapper.client;
+package eu.flatwhite.zapper;
 
 import java.io.IOException;
-
-import eu.flatwhite.zapper.IOSource;
-import eu.flatwhite.zapper.IOSourceListable;
-import eu.flatwhite.zapper.IOTarget;
-import eu.flatwhite.zapper.Path;
 
 public interface Client
 {

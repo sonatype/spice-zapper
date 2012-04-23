@@ -3,6 +3,11 @@ package eu.flatwhite.zapper;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Used when downloading, as "target" for arrived content.
+ * 
+ * @author cstamas
+ */
 public interface IOTarget
 {
     /**

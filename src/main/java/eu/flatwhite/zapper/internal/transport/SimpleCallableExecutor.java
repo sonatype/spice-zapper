@@ -1,11 +1,11 @@
 package eu.flatwhite.zapper.internal.transport;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.sonatype.sisu.charger.CallableExecutor;
-import org.sonatype.sisu.charger.internal.ChargeWrapper;
 
 public class SimpleCallableExecutor
     implements CallableExecutor
@@ -18,7 +18,7 @@ public class SimpleCallableExecutor
     }
 
     @Override
-    public <T> Future<T> submit( ChargeWrapper<T> task )
+    public <T> Future<T> submit( Callable<T> task )
     {
         return executorService.submit( task );
     }

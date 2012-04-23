@@ -1,11 +1,9 @@
-package eu.flatwhite.zapper.internal.segmenter;
+package eu.flatwhite.zapper.internal;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import eu.flatwhite.zapper.ZFile;
-import eu.flatwhite.zapper.internal.Segment;
-import eu.flatwhite.zapper.internal.SegmentCreator;
 
 public class ZFileSegmentCreator
     implements SegmentCreator
