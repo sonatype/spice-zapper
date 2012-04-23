@@ -1,8 +1,10 @@
 package eu.flatwhite.zapper.internal.wholefile;
 
 import eu.flatwhite.zapper.Identifier;
+import eu.flatwhite.zapper.internal.AbstractIdentified;
 import eu.flatwhite.zapper.internal.PayloadCreator;
 import eu.flatwhite.zapper.internal.Protocol;
+import eu.flatwhite.zapper.internal.ProtocolIdentifier;
 import eu.flatwhite.zapper.internal.SegmentCreator;
 
 /**
@@ -14,8 +16,16 @@ import eu.flatwhite.zapper.internal.SegmentCreator;
  * @author cstamas
  */
 public class WholeZFileProtocol
+    extends AbstractIdentified<ProtocolIdentifier>
     implements Protocol
 {
+    public static ProtocolIdentifier ID = new ProtocolIdentifier( "whole-zfile" );
+
+    public WholeZFileProtocol()
+    {
+        super( ID );
+    }
+
     @Override
     public SegmentCreator getSegmentCreator( final Identifier transferId )
     {

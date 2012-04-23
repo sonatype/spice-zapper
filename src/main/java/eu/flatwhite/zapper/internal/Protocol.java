@@ -1,5 +1,6 @@
 package eu.flatwhite.zapper.internal;
 
+import eu.flatwhite.zapper.Identified;
 import eu.flatwhite.zapper.Identifier;
 
 /**
@@ -8,6 +9,7 @@ import eu.flatwhite.zapper.Identifier;
  * @author cstamas
  */
 public interface Protocol
+    extends Identified<ProtocolIdentifier>
 {
     SegmentCreator getSegmentCreator( Identifier transferId );
 
