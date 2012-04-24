@@ -10,6 +10,7 @@ import com.ning.http.client.ProxyServer;
 import com.ning.http.client.Realm;
 import com.ning.http.client.Response;
 
+import eu.flatwhite.zapper.AggregatingIOException;
 import eu.flatwhite.zapper.Parameters;
 import eu.flatwhite.zapper.internal.Check;
 import eu.flatwhite.zapper.internal.Payload;
@@ -73,7 +74,7 @@ public class AhcClient
 
         if ( !success )
         {
-            throw new AggregatingIOException( "Upload failed!", trackExceptions );
+            throw new AggregatingIOException( "Upload failed.", trackExceptions );
         }
     }
 

@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 
@@ -17,8 +14,6 @@ import eu.flatwhite.zapper.internal.PayloadSupplier;
 public class AhcTrack
     implements Runnable
 {
-    private final Logger log;
-
     private final AhcClient ahcClient;
 
     private final PayloadSupplier payloadSupplier;
@@ -31,7 +26,6 @@ public class AhcTrack
 
     public AhcTrack( final Identifier identifier, final AhcClient ahcClient, final PayloadSupplier payloadSupplier )
     {
-        this.log = LoggerFactory.getLogger( AhcTrack.class.getName() + "-" + identifier.stringValue() );
         this.ahcClient = ahcClient;
         this.payloadSupplier = payloadSupplier;
         this.countDownLatch = new CountDownLatch( 1 );
@@ -47,7 +41,6 @@ public class AhcTrack
     {
         if ( t != null )
         {
-            log.error( "Error during upload!", t );
             this.exception = t;
         }
         this.countDownLatch.countDown();
