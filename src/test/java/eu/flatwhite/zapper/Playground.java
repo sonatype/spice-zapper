@@ -13,7 +13,7 @@ import eu.flatwhite.zapper.internal.StringIdentifier;
 
 public class Playground
 {
-    @Test
+    //@Test
     public void simple()
         throws Exception
     {
@@ -25,7 +25,7 @@ public class Playground
 
         for ( ZFile zfile : zfiles )
         {
-            System.out.println( zfile );
+           // System.out.println( zfile );
 
         }
         /*

@@ -8,13 +8,13 @@ import com.ning.http.client.Response;
 
 public class AhcTest
 {
-    @Test
+    //@Test
     public void isThisABug()
         throws Exception
     {
         final AsyncHttpClientConfig.Builder configBuilder = new AsyncHttpClientConfig.Builder();
-        //configBuilder.setCompressionEnabled( true );
-        configBuilder.setRequestCompressionLevel( 6 );
+        configBuilder.setCompressionEnabled( true );
+        //configBuilder.setRequestCompressionLevel( 6 );
         final AsyncHttpClient client = new AsyncHttpClient( configBuilder.build() );
 
         try
