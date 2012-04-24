@@ -95,8 +95,19 @@ public abstract class AbstractClient
 
         getLogger().info( "Uploading total of {} bytes (in {} files) as {} segments over {} tracks.",
             new Object[] { totalSize, zfiles.size(), segments.size(), trackCount } );
+
         final long started = System.currentTimeMillis();
-        doUpload( protocol, trackCount, payloadSupplier );
+        boolean success = false;
+        try
+        {
+            doUpload( protocol, trackCount, payloadSupplier );
+            success = true;
+        }
+        finally
+        {
+            source.close( success );
+        }
+
         getLogger().info( "Upload finished in {} seconds.", ( System.currentTimeMillis() - started ) / 1000 );
     }
 
@@ -120,6 +131,15 @@ public abstract class AbstractClient
         return new WholeZFileProtocol();
     }
 
+    /**
+     * Performs actual operation. Either returns cleanly (which is considered as "success"), or should throw
+     * {@link IOException} to mark "failure".
+     * 
+     * @param protocol
+     * @param trackCount
+     * @param payloadSupplier
+     * @throws IOException
+     */
     protected abstract void doUpload( final Protocol protocol, final int trackCount,
                                       final PayloadSupplier payloadSupplier )
         throws IOException;
