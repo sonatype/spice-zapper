@@ -6,5 +6,5 @@ import eu.flatwhite.zapper.ZFile;
 
 public interface SegmentCreator
 {
-    List<Segment> createSegments( List<ZFile> zfiles );
+    List<Segment> createSegments( TransferIdentifier transferId, List<ZFile> zfiles );
 }

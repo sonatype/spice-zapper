@@ -19,7 +19,7 @@ public class PayloadSupplierImpl
     }
 
     @Override
-    public Payload getNextPayload()
+    public synchronized Payload getNextPayload()
     {
         if ( payloadIterator.hasNext() )
         {

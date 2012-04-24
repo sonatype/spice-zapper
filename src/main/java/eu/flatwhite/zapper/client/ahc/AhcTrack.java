@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutionException;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 
-import eu.flatwhite.zapper.Identifier;
 import eu.flatwhite.zapper.internal.Payload;
 import eu.flatwhite.zapper.internal.PayloadSupplier;
 
@@ -24,7 +23,7 @@ public class AhcTrack
 
     private IOException exception;
 
-    public AhcTrack( final Identifier identifier, final AhcClient ahcClient, final PayloadSupplier payloadSupplier )
+    public AhcTrack( final AhcClient ahcClient, final PayloadSupplier payloadSupplier )
     {
         this.ahcClient = ahcClient;
         this.payloadSupplier = payloadSupplier;
@@ -109,7 +108,7 @@ public class AhcTrack
             }
             else
             {
-                setDone( new IOException( "ExecutionException", e.getCause() ) );
+                setDone( new IOException( "ExecutionException: " + t.getMessage(), t ) );
             }
         }
     }

@@ -12,7 +12,6 @@ import eu.flatwhite.zapper.Client;
 import eu.flatwhite.zapper.IOSource;
 import eu.flatwhite.zapper.IOSourceListable;
 import eu.flatwhite.zapper.IOTarget;
-import eu.flatwhite.zapper.Identifier;
 import eu.flatwhite.zapper.Parameters;
 import eu.flatwhite.zapper.Path;
 import eu.flatwhite.zapper.ZFile;
@@ -22,7 +21,7 @@ import eu.flatwhite.zapper.internal.PayloadSupplier;
 import eu.flatwhite.zapper.internal.PayloadSupplierImpl;
 import eu.flatwhite.zapper.internal.Protocol;
 import eu.flatwhite.zapper.internal.Segment;
-import eu.flatwhite.zapper.internal.StringIdentifier;
+import eu.flatwhite.zapper.internal.TransferIdentifier;
 import eu.flatwhite.zapper.internal.wholefile.WholeZFileProtocol;
 
 public abstract class AbstractClient
@@ -75,16 +74,16 @@ public abstract class AbstractClient
     protected void upload( final IOSource source, final List<ZFile> zfiles )
         throws IOException
     {
-        final Identifier transferId = new StringIdentifier( UUID.randomUUID().toString() );
-        final Protocol protocol = handshake();
+        final TransferIdentifier transferId = new TransferIdentifier( UUID.randomUUID().toString() );
+        final Protocol protocol = handshake( transferId );
         getLogger().info( "Starting upload transfer ID \"{}\" (using protocol \"{}\")", transferId.stringValue(),
             protocol.getIdentifier().stringValue() );
 
-        final List<Segment> segments = protocol.getSegmentCreator( transferId ).createSegments( zfiles );
+        final List<Segment> segments = protocol.getSegmentCreator().createSegments( transferId, zfiles );
         final int trackCount = Math.min( getParameters().getMaximumTrackCount(), segments.size() );
 
         final List<Payload> payloads =
-            protocol.getPayloadCreator( transferId ).createPayloads( source, segments, getRemoteUrl() );
+            protocol.getPayloadCreator().createPayloads( transferId, source, segments, getRemoteUrl() );
         final PayloadSupplier payloadSupplier = new PayloadSupplierImpl( payloads );
 
         long totalSize = 0;
@@ -125,10 +124,10 @@ public abstract class AbstractClient
 
     // ==
 
-    protected Protocol handshake()
+    protected Protocol handshake( final TransferIdentifier transferIdentifier )
     {
         // safest, we will see later for real handshake
-        return new WholeZFileProtocol();
+        return new WholeZFileProtocol( transferIdentifier );
     }
 
     /**

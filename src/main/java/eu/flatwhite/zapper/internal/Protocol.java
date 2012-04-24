@@ -1,7 +1,6 @@
 package eu.flatwhite.zapper.internal;
 
 import eu.flatwhite.zapper.Identified;
-import eu.flatwhite.zapper.Identifier;
 
 /**
  * Whole file -- most compatible Ranges -- segmented uploads by ranges Zapper -- segmented uploads
@@ -11,7 +10,9 @@ import eu.flatwhite.zapper.Identifier;
 public interface Protocol
     extends Identified<ProtocolIdentifier>
 {
-    SegmentCreator getSegmentCreator( Identifier transferId );
+    TransferIdentifier getTransferId();
 
-    PayloadCreator getPayloadCreator( Identifier transferId );
+    SegmentCreator getSegmentCreator();
+
+    PayloadCreator getPayloadCreator();
 }

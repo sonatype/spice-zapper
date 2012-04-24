@@ -6,5 +6,5 @@ import eu.flatwhite.zapper.IOSource;
 
 public interface PayloadCreator
 {
-    List<Payload> createPayloads( IOSource source, List<Segment> segments, String remoteUrl );
+    List<Payload> createPayloads( TransferIdentifier transferId, IOSource source, List<Segment> segments, String remoteUrl );
 }

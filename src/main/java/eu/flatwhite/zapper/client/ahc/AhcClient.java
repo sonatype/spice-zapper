@@ -16,7 +16,6 @@ import eu.flatwhite.zapper.internal.Check;
 import eu.flatwhite.zapper.internal.Payload;
 import eu.flatwhite.zapper.internal.PayloadSupplier;
 import eu.flatwhite.zapper.internal.Protocol;
-import eu.flatwhite.zapper.internal.StringIdentifier;
 import eu.flatwhite.zapper.internal.transport.AbstractClient;
 
 public class AhcClient
@@ -58,7 +57,7 @@ public class AhcClient
         final AhcTrack[] tracks = new AhcTrack[trackCount];
         for ( int i = 0; i < trackCount; i++ )
         {
-            tracks[i] = new AhcTrack( new StringIdentifier( String.valueOf( i ) ), this, payloadSupplier );
+            tracks[i] = new AhcTrack( this, payloadSupplier );
         }
         final IOException[] trackExceptions = new IOException[trackCount];
         boolean success = true;
@@ -81,8 +80,9 @@ public class AhcClient
     protected ListenableFuture<Response> upload( final Payload payload, final AhcTrack ahcTrack )
         throws IOException
     {
+        final String url = getRemoteUrl() + payload.getPath().stringValue();
         final BoundRequestBuilder requestBuilder =
-            asyncHttpClient.preparePut( payload.getUrl() ).setBody( new ZapperBodyGenerator( payload ) ).setHeader(
+            asyncHttpClient.preparePut( url ).setBody( new ZapperBodyGenerator( payload ) ).setHeader(
                 "X-Zapper-Transfer-ID", payload.getTransferIdentifier().stringValue() );
         if ( realm != null )
         {

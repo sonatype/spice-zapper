@@ -16,7 +16,7 @@ public class ZFileSegmentCreator
     }
 
     @Override
-    public List<Segment> createSegments( final List<ZFile> zfiles )
+    public List<Segment> createSegments( final TransferIdentifier transferId, final List<ZFile> zfiles )
     {
         final ArrayList<Segment> segments = new ArrayList<Segment>( zfiles.size() );
         for ( ZFile zfile : zfiles )

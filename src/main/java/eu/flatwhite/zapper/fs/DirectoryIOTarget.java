@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.flatwhite.zapper.IOTarget;
-import eu.flatwhite.zapper.Identifier;
+import eu.flatwhite.zapper.Path;
 import eu.flatwhite.zapper.Range;
 import eu.flatwhite.zapper.ZFile;
 import eu.flatwhite.zapper.internal.Check;
@@ -19,13 +19,13 @@ public class DirectoryIOTarget
     extends AbstractDirectory
     implements IOTarget
 {
-    private final Map<Identifier, File> files;
+    private final Map<Path, File> files;
 
     public DirectoryIOTarget( final File root )
         throws IOException
     {
         super( root );
-        files = new HashMap<Identifier, File>();
+        files = new HashMap<Path, File>();
     }
 
     @Override

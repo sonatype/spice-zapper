@@ -38,8 +38,14 @@ public class AhcClientBuilder
 
     public AhcClient build()
     {
-        AsyncHttpClientConfig.Builder builder =
-            new AsyncHttpClientConfig.Builder().setMaximumConnectionsPerHost( parameters.getMaximumTrackCount() );
+        AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
+        // make it match track count
+        builder.setMaximumConnectionsPerHost( parameters.getMaximumTrackCount() );
+        // enable compression
+        builder.setCompressionEnabled( true );
+        //builder.setRequestCompressionLevel( 6 );
+        // set UA
+        builder.setUserAgent( "Zapper/1.0" );
         final AsyncHttpClient asyncHttpClient = new AsyncHttpClient( builder.build() );
         return new AhcClient( parameters, remoteUrl, asyncHttpClient, realm, proxyServer );
     }

@@ -20,7 +20,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.6.4</slf4j.version>
-    <ahc.version>1.7.3</ahc.version>
+    <ahc.version>1.7.4</ahc.version>
   </properties>
 
   <dependencyManagement>
