@@ -9,5 +9,6 @@ public class PathImpl
     public PathImpl( final String stringValue )
     {
         super( stringValue );
+        Check.argument( !stringValue.contains( "\\" ), "Path must contain only forward slashes! path=" + stringValue );
     }
 }

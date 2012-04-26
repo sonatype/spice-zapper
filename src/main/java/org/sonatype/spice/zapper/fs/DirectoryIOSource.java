@@ -22,7 +22,6 @@ import org.sonatype.spice.zapper.internal.RangeImpl;
 import org.sonatype.spice.zapper.internal.RangeInputStream;
 import org.sonatype.spice.zapper.internal.ZFileImpl;
 
-
 public class DirectoryIOSource
     extends AbstractDirectory
     implements IOSourceListable
@@ -172,8 +171,10 @@ public class DirectoryIOSource
                 }
                 else if ( file.isFile() )
                 {
-                    final Path path =
-                        new PathImpl( file.getAbsolutePath().substring( getRoot().getAbsolutePath().length() + 1 ) );
+                    // win paths
+                    final String pathString =
+                        file.getAbsolutePath().substring( getRoot().getAbsolutePath().length() + 1 ).replace( '\\', '/' );
+                    final Path path = new PathImpl( pathString );
                     final ZFile zfile = createZFile( path, file );
                     zfiles.add( zfile );
                     i++;
