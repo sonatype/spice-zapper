@@ -87,10 +87,12 @@ public class AhcTrack
             final Response response = listenableFuture.get();
             if ( response.getStatusCode() > 199 && response.getStatusCode() < 300 )
             {
+                // got for next payload
                 upload();
             }
             else
             {
+                // fail
                 setDone( new IOException( String.format( "Unexpected server response: %s %s", response.getStatusCode(),
                     response.getStatusText() ) ) );
             }

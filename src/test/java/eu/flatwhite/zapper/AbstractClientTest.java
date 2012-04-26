@@ -14,13 +14,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.ning.http.client.Realm;
-import com.ning.http.client.Realm.AuthScheme;
-
-import eu.flatwhite.zapper.client.ahc.AhcClientBuilder;
 import eu.flatwhite.zapper.fs.DirectoryIOSource;
 
-public class ClientTest
+public abstract class AbstractClientTest
 {
     private Server server;
 
@@ -76,19 +72,26 @@ public class ClientTest
     }
 
     @Test
-    public void upload()
+    public void uploadTest()
+        throws Exception
+    {
+        // we run it twice to avoid any "warmup" problems
+        final long r1 = timedUpload();
+        final long r2 = timedUpload();
+        System.out.println( "Done in " + ( ( r1 + r2 ) / 2 ) + " ms." );
+    }
+
+    // ==
+
+    protected long timedUpload()
         throws Exception
     {
         final Parameters parameters = ParametersBuilder.defaults().build();
 
-        final Realm realm =
-            new Realm.RealmBuilder().setPrincipal( "admin" ).setPassword( "admin123" ).setUsePreemptiveAuth( true ).setScheme(
-                AuthScheme.BASIC ).build();
-        final AhcClientBuilder builder =
-            new AhcClientBuilder( parameters, "http://localhost:" + port + "/" ).withRealm( realm );
-        final Client client = builder.build();
+        final Client client = getClient( parameters, "http://localhost:" + port + "/" );
         final IOSourceListable directory = new DirectoryIOSource( new File( "target/classes" ) );
 
+        final long started = System.currentTimeMillis();
         try
         {
             client.upload( directory );
@@ -97,5 +100,10 @@ public class ClientTest
         {
             client.close();
         }
+        return System.currentTimeMillis() - started;
     }
+
+    // ==
+
+    protected abstract Client getClient( final Parameters parameters, final String remoteUrl );
 }

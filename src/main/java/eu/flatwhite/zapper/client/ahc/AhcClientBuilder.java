@@ -45,7 +45,7 @@ public class AhcClientBuilder
         builder.setCompressionEnabled( true );
         //builder.setRequestCompressionLevel( 6 );
         // set UA
-        builder.setUserAgent( "Zapper/1.0" );
+        builder.setUserAgent( "Zapper/1.0-AHC" );
         final AsyncHttpClient asyncHttpClient = new AsyncHttpClient( builder.build() );
         return new AhcClient( parameters, remoteUrl, asyncHttpClient, realm, proxyServer );
     }

@@ -11,11 +11,9 @@ import org.sonatype.sisu.charger.ExceptionHandler;
 import org.sonatype.sisu.charger.internal.AllArrivedChargeStrategy;
 import org.sonatype.sisu.charger.internal.DefaultCharger;
 
-import eu.flatwhite.zapper.Identifier;
 import eu.flatwhite.zapper.Parameters;
 import eu.flatwhite.zapper.internal.PayloadSupplier;
 import eu.flatwhite.zapper.internal.Protocol;
-import eu.flatwhite.zapper.internal.StringIdentifier;
 
 /**
  * Client using "charger" that handles multi-thread invocations. Obviously, this is not needed if the actual underlying
@@ -28,10 +26,19 @@ public abstract class AbstractChargerClient
 {
     private final Charger charger;
 
+    private final SimpleCallableExecutor executor;
+
     public AbstractChargerClient( final Parameters parameters, final String remoteUrl )
     {
         super( parameters, remoteUrl );
         this.charger = new DefaultCharger();
+        this.executor = new SimpleCallableExecutor( parameters.getMaximumTrackCount() );
+    }
+
+    @Override
+    public void close()
+    {
+        executor.shutdown();
     }
 
     @Override
@@ -39,15 +46,13 @@ public abstract class AbstractChargerClient
         throws IOException
     {
         final List<Callable<State>> tracks = new ArrayList<Callable<State>>( trackCount );
-        final SimpleCallableExecutor simpleCallableExecutor = new SimpleCallableExecutor( trackCount );
         for ( int i = 0; i < trackCount; i++ )
         {
-            tracks.add( createCallable( new StringIdentifier( String.valueOf( i ) ), payloadSupplier ) );
+            tracks.add( createCallable( protocol, i, payloadSupplier ) );
         }
 
         final ChargeFuture<State> chargeFuture =
-            charger.submit( tracks, getExceptionHandler(), new AllArrivedChargeStrategy<State>(),
-                simpleCallableExecutor );
+            charger.submit( tracks, getExceptionHandler(), new AllArrivedChargeStrategy<State>(), executor );
 
         try
         {
@@ -65,15 +70,11 @@ public abstract class AbstractChargerClient
         {
             throw new IOException( e );
         }
-        finally
-        {
-            simpleCallableExecutor.shutdown();
-        }
     }
 
     // ==
 
-    protected abstract Callable<State> createCallable( final Identifier identifier,
+    protected abstract Callable<State> createCallable( final Protocol protocol, final int trackNo,
                                                        final PayloadSupplier payloadSupplier );
 
     protected static ExceptionHandler NON_HANDLING_EXCEPTION_HANDLER = new ExceptionHandler()

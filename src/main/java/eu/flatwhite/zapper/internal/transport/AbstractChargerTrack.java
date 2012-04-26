@@ -5,23 +5,46 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import eu.flatwhite.zapper.Identifier;
-import eu.flatwhite.zapper.internal.AbstractIdentified;
+import eu.flatwhite.zapper.internal.Check;
+import eu.flatwhite.zapper.internal.PayloadSupplier;
+import eu.flatwhite.zapper.internal.Protocol;
 
 public abstract class AbstractChargerTrack
-    extends AbstractIdentified<Identifier>
     implements Callable<State>
 {
     private final Logger logger;
 
-    public AbstractChargerTrack( final Identifier identifier )
+    private final Protocol protocol;
+
+    private final int trackNo;
+
+    final PayloadSupplier payloadSupplier;
+
+    public AbstractChargerTrack( final Protocol protocol, final int trackNo, final PayloadSupplier payloadSupplier )
     {
-        super( identifier );
-        this.logger = LoggerFactory.getLogger( getClass() + "-" + getIdentifier().stringValue() );
+        this.logger = LoggerFactory.getLogger( getClass() + "-" + trackNo );
+        this.protocol = Check.notNull( protocol, Protocol.class );
+        this.trackNo = trackNo;
+        this.payloadSupplier = Check.notNull( payloadSupplier, PayloadSupplier.class );
     }
 
     protected Logger getLogger()
     {
         return logger;
+    }
+
+    protected Protocol getProtocol()
+    {
+        return protocol;
+    }
+
+    protected int getTrackNo()
+    {
+        return trackNo;
+    }
+
+    protected PayloadSupplier getPayloadSupplier()
+    {
+        return payloadSupplier;
     }
 }

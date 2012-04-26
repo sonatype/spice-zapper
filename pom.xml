@@ -41,11 +41,19 @@
       <optional>true</optional>
     </dependency>
 
-      <!-- HTTP carrier: client transport -->
+      <!-- HTTP carrier: AHC for client transport -->
     <dependency>
       <groupId>com.ning</groupId>
       <artifactId>async-http-client</artifactId>
-      <version>${ahc.version}</version>
+      <version>1.7.4</version>
+      <scope>compile</scope>
+    </dependency>
+
+      <!-- HTTP carrier: Apache HC4x for client transport -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.1.3</version>
       <scope>compile</scope>
     </dependency>
 
