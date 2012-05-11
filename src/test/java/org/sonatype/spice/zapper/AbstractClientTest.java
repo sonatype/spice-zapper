@@ -13,12 +13,7 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonatype.spice.zapper.Client;
-import org.sonatype.spice.zapper.IOSourceListable;
-import org.sonatype.spice.zapper.Parameters;
-import org.sonatype.spice.zapper.ParametersBuilder;
 import org.sonatype.spice.zapper.fs.DirectoryIOSource;
-
 
 public abstract class AbstractClientTest
 {
@@ -55,7 +50,7 @@ public abstract class AbstractClientTest
         resourceHandler.setWelcomeFiles( new String[] { "index.html" } );
         resourceHandler.setResourceBase( new File( "target/test-classes/server" ).getAbsolutePath() );
 
-        DeployHandler deployHandler = new DeployHandler();
+        DeployHandler deployHandler = new DeployHandler( null );
 
         HandlerList handlers = new HandlerList();
         handlers.setHandlers( new Handler[] { resourceHandler, deployHandler, new DefaultHandler() } );
