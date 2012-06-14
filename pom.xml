@@ -169,25 +169,16 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.7</version>
-        <executions>
-          <execution>
-            <id>generate-sources</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <mkdir dir="target/generated-sources/protos" />
-                <exec executable="${protoc.executablePath}">
-                  <arg value="--java_out=target/generated-sources/protos" />
-                  <arg value="src/main/protobuf/zapper.proto" />
-                </exec>
-              </target>
-              <sourceRoot>target/generated-sources/protos</sourceRoot>
-            </configuration>
-          </execution>
-        </executions>
+        <configuration>
+          <target>
+            <mkdir dir="src/main/generated-sources/protos" />
+            <exec executable="${protoc.executablePath}">
+              <arg value="--java_out=src/main/generated-sources/protos" />
+              <arg value="src/main/protobuf/zapper.proto" />
+            </exec>
+          </target>
+          <sourceRoot>src/main/generated-sources/protos</sourceRoot>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -202,7 +193,7 @@
             </goals>
             <configuration>
               <sources>
-                <source>target/generated-sources/protos</source>
+                <source>src/main/generated-sources/protos</source>
               </sources>
             </configuration>
           </execution>
