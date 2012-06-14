@@ -1,69 +1,69 @@
 package org.sonatype.spice.zapper;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.sonatype.spice.zapper.codec.Codec;
-import org.sonatype.spice.zapper.codec.CodecIdentifier;
+import org.sonatype.spice.zapper.codec.NoopCodecSelector;
 import org.sonatype.spice.zapper.hash.HashAlgorithm;
-import org.sonatype.spice.zapper.hash.HashAlgorithmIdentifier;
 import org.sonatype.spice.zapper.hash.Sha1HashAlgorithm;
+import org.sonatype.spice.zapper.internal.Check;
 import org.sonatype.spice.zapper.internal.ParametersImpl;
-
 
 public class ParametersBuilder
 {
-    private Map<HashAlgorithmIdentifier, HashAlgorithm> hashAlgorithms;
+    private HashAlgorithm hashAlgorithm;
 
-    private Map<CodecIdentifier, Codec> codecs;
+    private CodecSelector codecSelector;
 
     private int maximumTrackCount;
 
     private long maximumSegmentLength;
 
-    public ParametersBuilder()
+    private ParametersBuilder( final HashAlgorithm hashAlgorithm )
     {
-        this.hashAlgorithms = new HashMap<HashAlgorithmIdentifier, HashAlgorithm>();
-        this.codecs = new HashMap<CodecIdentifier, Codec>();
+        this.hashAlgorithm = Check.notNull( hashAlgorithm, HashAlgorithm.class );
+        this.codecSelector = new NoopCodecSelector();
         this.maximumTrackCount = 6;
         this.maximumSegmentLength = 1073741824L; // 1MB
     }
 
-    public ParametersBuilder addHashAlgorithm( final HashAlgorithm hashAlgorithm )
+    public ParametersBuilder setHashAlgorithm( final HashAlgorithm hashAlgorithm )
     {
-        this.hashAlgorithms.put( hashAlgorithm.getIdentifier(), hashAlgorithm );
+        this.hashAlgorithm = Check.notNull( hashAlgorithm, HashAlgorithm.class );
         return this;
     }
 
-    public ParametersBuilder addCodec( final Codec codec )
+    public ParametersBuilder setCodecSelector( final CodecSelector codecSelector )
     {
-        this.codecs.put( codec.getIdentifier(), codec );
+        this.codecSelector = Check.notNull( codecSelector, CodecSelector.class );
         return this;
     }
 
     public ParametersBuilder setMaximumTrackCount( final int maximumTrackCount )
     {
-        this.maximumTrackCount = maximumTrackCount;
+        this.maximumTrackCount =
+            Check.argument( maximumTrackCount > 0, maximumTrackCount, "maximumTrackCount not positive!" );
         return this;
     }
 
     public ParametersBuilder setMaximumSegmentLength( final long maximumSegmentLength )
     {
-        this.maximumSegmentLength = maximumSegmentLength;
+        // this could be stricter, like "is there any sense to have 1 byte large segments?"
+        // maybe some sensible minimum like 1MB?
+        this.maximumSegmentLength =
+            Check.argument( maximumSegmentLength > 0, maximumSegmentLength, "maximumSegmentLength not positive!" );
         return this;
     }
 
     public Parameters build()
     {
-        return new ParametersImpl( hashAlgorithms, codecs, maximumTrackCount, maximumSegmentLength );
+        return new ParametersImpl( hashAlgorithm, codecSelector, maximumTrackCount, maximumSegmentLength );
     }
 
     public static ParametersBuilder defaults()
         throws NoSuchAlgorithmException
     {
         // sha1 hash algorithm + 6 tracks + 1MB segments
-        return new ParametersBuilder().addHashAlgorithm( new Sha1HashAlgorithm() ).setMaximumTrackCount( 6 ).setMaximumSegmentLength(
+        return new ParametersBuilder( new Sha1HashAlgorithm() ).setMaximumTrackCount( 6 ).setMaximumSegmentLength(
             1073741824L );
     }
 }

@@ -7,19 +7,19 @@ import java.util.List;
 public class PayloadSupplierImpl
     implements PayloadSupplier
 {
-    private final List<Payload> payloads;
+    private final List<SegmentPayload> payloads;
 
-    private final Iterator<Payload> payloadIterator;
+    private final Iterator<SegmentPayload> payloadIterator;
 
-    public PayloadSupplierImpl( final List<Payload> payloads )
+    public PayloadSupplierImpl( final List<SegmentPayload> payloads )
     {
-        this.payloads = new ArrayList<Payload>( Check.notNull( payloads, "Payload list is null!" ).size() );
+        this.payloads = new ArrayList<SegmentPayload>( Check.notNull( payloads, "Payload list is null!" ).size() );
         this.payloads.addAll( payloads );
         this.payloadIterator = payloads.iterator();
     }
 
     @Override
-    public synchronized Payload getNextPayload()
+    public synchronized SegmentPayload getNextPayload()
     {
         if ( payloadIterator.hasNext() )
         {

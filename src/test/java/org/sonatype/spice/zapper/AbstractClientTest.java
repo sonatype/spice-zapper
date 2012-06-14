@@ -13,6 +13,8 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonatype.spice.zapper.codec.GzipCodec;
+import org.sonatype.spice.zapper.codec.MatchingCodecSelector;
 import org.sonatype.spice.zapper.fs.DirectoryIOSource;
 
 public abstract class AbstractClientTest
@@ -85,7 +87,8 @@ public abstract class AbstractClientTest
     protected long timedUpload()
         throws Exception
     {
-        final Parameters parameters = ParametersBuilder.defaults().build();
+        final MatchingCodecSelector codecSelector = MatchingCodecSelector.builder().add( ".*", new GzipCodec() ).build();
+        final Parameters parameters = ParametersBuilder.defaults().setCodecSelector( codecSelector ).build();
 
         final Client client = getClient( parameters, "http://localhost:" + port + "/" );
         final IOSourceListable directory = new DirectoryIOSource( new File( "target/classes" ) );

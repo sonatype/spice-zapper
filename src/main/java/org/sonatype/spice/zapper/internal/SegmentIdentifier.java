@@ -1,9 +1,9 @@
 package org.sonatype.spice.zapper.internal;
 
-public class TransferIdentifier
+public class SegmentIdentifier
     extends StringIdentifier
 {
-    public TransferIdentifier( final String stringValue )
+    public SegmentIdentifier( final String stringValue )
     {
         super( stringValue );
     }

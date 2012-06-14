@@ -5,8 +5,13 @@ import java.util.List;
 
 import org.sonatype.spice.zapper.ZFile;
 
-
-public class ZFileSegmentCreator
+/**
+ * Segment creator that chops files into given size, or creates a segment carrying whole file if {@code maxSegmentSize}
+ * is bigger than the file.
+ * 
+ * @author cstamas
+ */
+public abstract class ZFileSegmentCreator
     implements SegmentCreator
 {
     private final long maxSegmentSize;
@@ -17,14 +22,15 @@ public class ZFileSegmentCreator
     }
 
     @Override
-    public List<Segment> createSegments( final TransferIdentifier transferId, final List<ZFile> zfiles )
+    public int createSegments( final Transfer transfer )
     {
+        final List<ZFile> zfiles = transfer.getZfiles();
         final ArrayList<Segment> segments = new ArrayList<Segment>( zfiles.size() );
         for ( ZFile zfile : zfiles )
         {
             if ( zfile.getLength() < maxSegmentSize )
             {
-                segments.add( createSegment( 0, zfile.getLength(), zfile ) );
+                segments.add( createSegment( transfer, 0, zfile.getLength(), zfile ) );
             }
             else
             {
@@ -37,16 +43,17 @@ public class ZFileSegmentCreator
                     {
                         break;
                     }
-                    segments.add( createSegment( offset, length, zfile ) );
+                    segments.add( createSegment( transfer, offset, length, zfile ) );
                     offset += length;
                 }
             }
         }
-        return segments;
+        transfer.setSegments( segments );
+        return segments.size();
     }
 
-    protected Segment createSegment( final long offset, final long length, final ZFile zfile )
+    protected Segment createSegment( final Transfer transfer, final long offset, final long length, final ZFile zfile )
     {
-        return new Segment( offset, length, zfile );
+        return new Segment( offset, length, zfile, transfer.getNextSegmentIdentifier() );
     }
 }

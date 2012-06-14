@@ -1,6 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
+
   <parent>
     <groupId>org.sonatype.spice</groupId>
     <artifactId>spice-parent</artifactId>
@@ -23,7 +24,7 @@
     </license>
   </licenses>
 
-<scm>
+  <scm>
     <url>https://github.com/sonatype/spice-zapper</url>
     <connection>scm:git:git://github.com/sonatype/spice-zapper.git</connection>
     <developerConnection>scm:git:git@github.com:sonatype/spice-zapper.git</developerConnection>
@@ -33,6 +34,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.6.4</slf4j.version>
     <ahc.version>1.7.4</ahc.version>
+
+    <protoc.executablePath>/usr/local/bin/protoc</protoc.executablePath>
   </properties>
 
   <dependencies>
@@ -53,7 +56,7 @@
       <optional>true</optional>
     </dependency>
 
-      <!-- HTTP carrier: AHC for client transport -->
+      <!-- HTTP carrier: Async Http Client for client transport -->
     <dependency>
       <groupId>com.ning</groupId>
       <artifactId>async-http-client</artifactId>
@@ -62,7 +65,7 @@
       <optional>true</optional>
     </dependency>
 
-      <!-- HTTP carrier: Apache HC4x for client transport -->
+    <!-- HTTP carrier: Apache HC4x for client transport -->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
@@ -70,7 +73,15 @@
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
-
+    
+    <!-- Protobuf -->
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>2.4.1</version>
+      <scope>compile</scope>
+    </dependency>
+    
       <!-- Test -->
     <dependency>
       <groupId>junit</groupId>
@@ -152,6 +163,52 @@
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>generate-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir dir="target/generated-sources/protos" />
+                <exec executable="${protoc.executablePath}">
+                  <arg value="--java_out=target/generated-sources/protos" />
+                  <arg value="src/main/protobuf/zapper.proto" />
+                </exec>
+              </target>
+              <sourceRoot>target/generated-sources/protos</sourceRoot>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>add-antrun-generated-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>target/generated-sources/protos</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
 </project>

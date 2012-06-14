@@ -3,20 +3,30 @@ package org.sonatype.spice.zapper.client.hc4;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.http.entity.AbstractHttpEntity;
+import org.sonatype.spice.zapper.codec.Codec;
 import org.sonatype.spice.zapper.internal.Check;
 import org.sonatype.spice.zapper.internal.Payload;
-
 
 public class ZapperEntity
     extends AbstractHttpEntity
 {
     private final Payload payload;
 
+    private final List<Codec> codecs;
+
     public ZapperEntity( final Payload payload )
     {
+        this( payload, Collections.<Codec> emptyList() );
+    }
+
+    public ZapperEntity( final Payload payload, final List<Codec> codecs )
+    {
         this.payload = Check.notNull( payload, Payload.class );
+        this.codecs = Check.notNull( codecs, Codec.class );
     }
 
     @Override
@@ -28,7 +38,14 @@ public class ZapperEntity
     @Override
     public long getContentLength()
     {
-        return payload.getLength();
+        if ( codecs.isEmpty() )
+        {
+            return payload.getLength();
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     @Override
@@ -41,10 +58,16 @@ public class ZapperEntity
     private final int BUFFER_SIZE = 2048;
 
     @Override
-    public void writeTo( final OutputStream outstream )
+    public void writeTo( final OutputStream _outstream )
         throws IOException
     {
         final InputStream instream = getContent();
+        OutputStream outstream = _outstream;
+        for ( Codec codec : codecs )
+        {
+            outstream = codec.encode( outstream );
+        }
+
         try
         {
             byte[] buffer = new byte[BUFFER_SIZE];
@@ -75,6 +98,7 @@ public class ZapperEntity
         }
         finally
         {
+            outstream.close();
             instream.close();
         }
     }

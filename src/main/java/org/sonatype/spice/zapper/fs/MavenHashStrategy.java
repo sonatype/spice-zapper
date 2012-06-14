@@ -9,7 +9,6 @@ import org.sonatype.spice.zapper.hash.HashUtils;
 import org.sonatype.spice.zapper.hash.Sha1HashAlgorithm;
 import org.sonatype.spice.zapper.internal.Check;
 
-
 public class MavenHashStrategy
     implements HashStrategy
 {

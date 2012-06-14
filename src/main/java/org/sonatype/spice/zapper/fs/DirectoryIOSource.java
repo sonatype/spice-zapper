@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.Channels;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,8 +17,8 @@ import org.sonatype.spice.zapper.Range;
 import org.sonatype.spice.zapper.ZFile;
 import org.sonatype.spice.zapper.hash.Hash;
 import org.sonatype.spice.zapper.hash.HashAlgorithm;
+import org.sonatype.spice.zapper.hash.Sha1HashAlgorithm;
 import org.sonatype.spice.zapper.internal.Check;
-import org.sonatype.spice.zapper.internal.PathImpl;
 import org.sonatype.spice.zapper.internal.RangeImpl;
 import org.sonatype.spice.zapper.internal.RangeInputStream;
 import org.sonatype.spice.zapper.internal.ZFileImpl;
@@ -29,15 +30,15 @@ public class DirectoryIOSource
     private final HashStrategy hashStrategy;
 
     /**
-     * Creates source that will source ZFiles without hashes.
+     * Creates source that will source ZFiles with SHA1 hashes.
      * 
      * @param root
      * @throws IOException
      */
     public DirectoryIOSource( final File root )
-        throws IOException
+        throws IOException, NoSuchAlgorithmException
     {
-        this( root, (HashStrategy) null );
+        this( root, new Sha1HashAlgorithm() );
     }
 
     /**
@@ -64,7 +65,7 @@ public class DirectoryIOSource
         throws IOException
     {
         super( root );
-        this.hashStrategy = hashStrategy;
+        this.hashStrategy = Check.notNull( hashStrategy, HashStrategy.class );
     }
 
     @Override
@@ -119,12 +120,7 @@ public class DirectoryIOSource
     public ZFile createZFile( final Path path, final File file )
         throws IOException
     {
-        Hash hash = null;
-        if ( hashStrategy != null )
-        {
-            hash = hashStrategy.getHashFor( file );
-        }
-        return createZFile( path, file, hash );
+        return createZFile( path, file, hashStrategy.getHashFor( file ) );
     }
 
     public ZFile createZFile( final Path path, final File file, final Hash hash )
@@ -135,14 +131,7 @@ public class DirectoryIOSource
         // this is "source", we expect to create ZFiles based on existing files
         if ( file.isFile() )
         {
-            if ( hash != null )
-            {
-                return new ZFileImpl( path, file.length(), file.lastModified(), hash );
-            }
-            else
-            {
-                return new ZFileImpl( path, file.length(), file.lastModified() );
-            }
+            return new ZFileImpl( path, file.length(), file.lastModified(), hash );
         }
         else
         {
@@ -174,7 +163,7 @@ public class DirectoryIOSource
                     // win paths
                     final String pathString =
                         file.getAbsolutePath().substring( getRoot().getAbsolutePath().length() + 1 ).replace( '\\', '/' );
-                    final Path path = new PathImpl( pathString );
+                    final Path path = new Path( pathString );
                     final ZFile zfile = createZFile( path, file );
                     zfiles.add( zfile );
                     i++;

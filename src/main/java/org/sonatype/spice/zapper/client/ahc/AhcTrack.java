@@ -6,12 +6,14 @@ import java.util.concurrent.ExecutionException;
 
 import org.sonatype.spice.zapper.internal.Payload;
 import org.sonatype.spice.zapper.internal.PayloadSupplier;
+import org.sonatype.spice.zapper.internal.transport.Track;
+import org.sonatype.spice.zapper.internal.transport.TrackIdentifier;
 
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 
-
 public class AhcTrack
+    extends Track
     implements Runnable
 {
     private final AhcClient ahcClient;
@@ -20,12 +22,12 @@ public class AhcTrack
 
     private final CountDownLatch countDownLatch;
 
-    private ListenableFuture<Response> listenableFuture;
-
     private IOException exception;
 
-    public AhcTrack( final AhcClient ahcClient, final PayloadSupplier payloadSupplier )
+    public AhcTrack( final TrackIdentifier trackIdentifier, final AhcClient ahcClient,
+                     final PayloadSupplier payloadSupplier )
     {
+        super( trackIdentifier );
         this.ahcClient = ahcClient;
         this.payloadSupplier = payloadSupplier;
         this.countDownLatch = new CountDownLatch( 1 );
@@ -65,8 +67,7 @@ public class AhcTrack
         {
             try
             {
-                this.listenableFuture = ahcClient.upload( payload, this );
-                this.listenableFuture.addListener( this, ahcClient );
+                ahcClient.upload( payload, this );
             }
             catch ( IOException e )
             {
@@ -78,6 +79,13 @@ public class AhcTrack
             // done cleanly
             setDone( null );
         }
+    }
+    
+    private ListenableFuture<Response> listenableFuture;
+
+    public void setListenableFuture( ListenableFuture<Response> listenableFuture )
+    {
+        this.listenableFuture = listenableFuture;
     }
 
     @Override

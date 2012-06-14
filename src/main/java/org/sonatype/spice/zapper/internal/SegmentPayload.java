@@ -5,10 +5,17 @@ import java.io.InputStream;
 
 import org.sonatype.spice.zapper.IOSource;
 import org.sonatype.spice.zapper.Path;
-import org.sonatype.spice.zapper.codec.Codec;
+import org.sonatype.spice.zapper.hash.Hash;
+import org.sonatype.spice.zapper.hash.HashAlgorithm;
+import org.sonatype.spice.zapper.hash.HashUtils;
 
-
+/**
+ * Segment payload is a {@link Payload} holding a {@link Segment}.
+ * 
+ * @author cstamas
+ */
 public class SegmentPayload
+    extends AbstractIdentified<SegmentIdentifier>
     implements Payload
 {
     private final TransferIdentifier transferIdentifier;
@@ -19,13 +26,23 @@ public class SegmentPayload
 
     private final IOSource ioSource;
 
+    private final Hash hash;
+
     public SegmentPayload( final TransferIdentifier transferIdentifier, final Path path, final Segment segment,
-                           final IOSource ioSource )
+                           final IOSource ioSource, final HashAlgorithm hashAlgorithm )
+        throws IOException
     {
-        this.transferIdentifier = transferIdentifier;
-        this.path = path;
+        super( Check.notNull( segment, Segment.class ).getIdentifier() );
+        this.transferIdentifier = Check.notNull( transferIdentifier, TransferIdentifier.class );
+        this.path = Check.notNull( path, Path.class );
         this.segment = segment;
-        this.ioSource = ioSource;
+        this.ioSource = Check.notNull( ioSource, IOSource.class );
+        this.hash = HashUtils.getDigest( hashAlgorithm, getContent() );
+    }
+
+    public Segment getSegment()
+    {
+        return segment;
     }
 
     @Override
@@ -50,12 +67,19 @@ public class SegmentPayload
     public InputStream getContent()
         throws IOException
     {
-        InputStream content = ioSource.readSegment( segment.getZFile().getIdentifier(), segment );
-        for ( Codec codec : segment.getSegmentFilters() )
-        {
-            content = codec.encode( content );
-        }
-        return content;
+        return ioSource.readSegment( segment.getZFile().getIdentifier(), segment );
     }
 
+    @Override
+    public Hash getHash()
+    {
+        return hash;
+    }
+
+    // ==
+
+    protected IOSource getIoSource()
+    {
+        return ioSource;
+    }
 }

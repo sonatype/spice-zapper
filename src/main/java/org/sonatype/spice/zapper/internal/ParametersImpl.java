@@ -1,48 +1,41 @@
 package org.sonatype.spice.zapper.internal;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
+import org.sonatype.spice.zapper.CodecSelector;
 import org.sonatype.spice.zapper.Parameters;
-import org.sonatype.spice.zapper.codec.Codec;
-import org.sonatype.spice.zapper.codec.CodecIdentifier;
 import org.sonatype.spice.zapper.hash.HashAlgorithm;
-import org.sonatype.spice.zapper.hash.HashAlgorithmIdentifier;
-
 
 public class ParametersImpl
     implements Parameters
 {
-    private final Map<HashAlgorithmIdentifier, HashAlgorithm> hashAlgorithms;
+    private final HashAlgorithm hashAlgorithm;
 
-    private final Map<CodecIdentifier, Codec> codecs;
+    private final CodecSelector codecSelector;
 
     private final int maximumTrackCount;
 
     private final long maximumSegmentLength;
 
-    public ParametersImpl( final Map<HashAlgorithmIdentifier, HashAlgorithm> hashAlgorithms,
-                           final Map<CodecIdentifier, Codec> codecs, final int maximumTrackCount,
-                           final long maximumSegmentLength )
+    public ParametersImpl( final HashAlgorithm hashAlgorithm, final CodecSelector codecSelector,
+                           final int maximumTrackCount, final long maximumSegmentLength )
     {
-        this.hashAlgorithms =
-            Collections.unmodifiableMap( new HashMap<HashAlgorithmIdentifier, HashAlgorithm>( hashAlgorithms ) );
-        this.codecs = Collections.unmodifiableMap( new HashMap<CodecIdentifier, Codec>( codecs ) );
-        this.maximumTrackCount = maximumTrackCount;
-        this.maximumSegmentLength = maximumSegmentLength;
+        this.hashAlgorithm = Check.notNull( hashAlgorithm, HashAlgorithm.class );
+        this.codecSelector = Check.notNull( codecSelector, CodecSelector.class );
+        this.maximumTrackCount =
+            Check.argument( maximumTrackCount > 0, maximumTrackCount, "maximumTrackCount must be positive!" );
+        this.maximumSegmentLength =
+            Check.argument( maximumSegmentLength > 0, maximumSegmentLength, "maximumSegmentLength must be positive!" );
     }
 
     @Override
-    public Map<HashAlgorithmIdentifier, HashAlgorithm> getHashAlgorithms()
+    public HashAlgorithm getHashAlgorithm()
     {
-        return hashAlgorithms;
+        return hashAlgorithm;
     }
 
     @Override
-    public Map<CodecIdentifier, Codec> getCodecs()
+    public CodecSelector getCodecSelector()
     {
-        return codecs;
+        return codecSelector;
     }
 
     @Override

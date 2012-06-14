@@ -2,7 +2,7 @@
 
 package zapper;
 
-option java_package = "eu.flatwhite.zapper.internal.protobuf.protos";
+option java_package = "org.sonatype.spice.zapper.internal.protobuf.protos";
 option java_outer_classname = "ZapperProtos";
 
 // reused messages
@@ -17,7 +17,7 @@ message Hash {
 message TransferMessage {
   required string magic = 1 [default = "zRec"]; // transfer "magic"
   required string transferId = 2; // transfer ID
-  required string transferTotalSize = 3; // transfer total "original" size (in bytes)
+  required int64 transferTotalSize = 3; // transfer total "original" size (in bytes)
 
   message File {
     required string fileId = 1; // file ID

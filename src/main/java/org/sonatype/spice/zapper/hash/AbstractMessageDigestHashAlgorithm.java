@@ -24,7 +24,7 @@ public abstract class AbstractMessageDigestHashAlgorithm
     @Override
     public Hash hash( final byte[] buffer )
     {
-        return new HashImpl( getIdentifier(), getMessageDigest().digest( buffer ) );
+        return new Hash( getIdentifier(), getMessageDigest().digest( buffer ) );
     }
 
     @Override
@@ -35,7 +35,7 @@ public abstract class AbstractMessageDigestHashAlgorithm
             @Override
             public Hash getHash()
             {
-                return new HashImpl( AbstractMessageDigestHashAlgorithm.this.getIdentifier(),
+                return new Hash( AbstractMessageDigestHashAlgorithm.this.getIdentifier(),
                     ( (DigestInputStream) in ).getMessageDigest().digest() );
             }
         };
@@ -49,7 +49,7 @@ public abstract class AbstractMessageDigestHashAlgorithm
             @Override
             public Hash getHash()
             {
-                return new HashImpl( AbstractMessageDigestHashAlgorithm.this.getIdentifier(),
+                return new Hash( AbstractMessageDigestHashAlgorithm.this.getIdentifier(),
                     ( (DigestOutputStream) out ).getMessageDigest().digest() );
             }
         };

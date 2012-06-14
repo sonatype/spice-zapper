@@ -13,7 +13,7 @@ import org.sonatype.sisu.charger.internal.DefaultCharger;
 import org.sonatype.spice.zapper.Parameters;
 import org.sonatype.spice.zapper.internal.PayloadSupplier;
 import org.sonatype.spice.zapper.internal.Protocol;
-
+import org.sonatype.spice.zapper.internal.Transfer;
 
 /**
  * Client using "charger" that handles multi-thread invocations. Obviously, this is not needed if the actual underlying
@@ -21,8 +21,8 @@ import org.sonatype.spice.zapper.internal.Protocol;
  * 
  * @author cstamas
  */
-public abstract class AbstractChargerClient
-    extends AbstractClient
+public abstract class AbstractChargerClient<T extends AbstractChargerTrack>
+    extends AbstractClient<T>
 {
     private final Charger charger;
 
@@ -42,13 +42,14 @@ public abstract class AbstractChargerClient
     }
 
     @Override
-    protected void doUpload( final Protocol protocol, final int trackCount, final PayloadSupplier payloadSupplier )
+    protected void doUpload( final Transfer transfer, final Protocol protocol, final int trackCount )
         throws IOException
     {
+        final PayloadSupplier payloadSupplier = transfer.getPayloadSupplier();
         final List<Callable<State>> tracks = new ArrayList<Callable<State>>( trackCount );
         for ( int i = 0; i < trackCount; i++ )
         {
-            tracks.add( createCallable( protocol, i, payloadSupplier ) );
+            tracks.add( createCallable( transfer.getNextTrackIdentifier(), transfer, protocol, payloadSupplier ) );
         }
 
         final ChargeFuture<State> chargeFuture =
@@ -74,8 +75,8 @@ public abstract class AbstractChargerClient
 
     // ==
 
-    protected abstract Callable<State> createCallable( final Protocol protocol, final int trackNo,
-                                                       final PayloadSupplier payloadSupplier );
+    protected abstract Callable<State> createCallable( final TrackIdentifier trackIdentifier, final Transfer transfer,
+                                                       final Protocol protocol, final PayloadSupplier payloadSupplier );
 
     protected static ExceptionHandler NON_HANDLING_EXCEPTION_HANDLER = new ExceptionHandler()
     {

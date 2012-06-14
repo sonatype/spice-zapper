@@ -8,7 +8,6 @@ import org.sonatype.spice.zapper.hash.HashAlgorithm;
 import org.sonatype.spice.zapper.hash.HashUtils;
 import org.sonatype.spice.zapper.internal.Check;
 
-
 public class CalculateHashStrategy
     implements HashStrategy
 {

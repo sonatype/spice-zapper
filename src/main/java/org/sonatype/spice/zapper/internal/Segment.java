@@ -1,33 +1,36 @@
 package org.sonatype.spice.zapper.internal;
 
-import java.util.Arrays;
-import java.util.List;
-
+import org.sonatype.spice.zapper.Identified;
 import org.sonatype.spice.zapper.ZFile;
-import org.sonatype.spice.zapper.codec.Codec;
 
-
+/**
+ * Segment is ZFile part (or whole, depending on range it holds).
+ * 
+ * @author cstamas
+ */
 public class Segment
     extends AbstractRange
+    implements Identified<SegmentIdentifier>
 {
+    private final SegmentIdentifier segmentIdentifier;
+
     private final ZFile zfile;
 
-    private final List<Codec> segmentFilters;
-
-    public Segment( final long offset, final long length, final ZFile zfile, final Codec... segmentFilters )
+    public Segment( final long offset, final long length, final ZFile zfile, final SegmentIdentifier segmentIdentifier )
     {
         super( offset, length );
-        this.zfile = zfile;
-        this.segmentFilters = Arrays.asList( segmentFilters );
+        this.zfile = Check.notNull( zfile, ZFile.class );
+        this.segmentIdentifier = Check.notNull( segmentIdentifier, SegmentIdentifier.class );
+    }
+
+    @Override
+    public SegmentIdentifier getIdentifier()
+    {
+        return segmentIdentifier;
     }
 
     public ZFile getZFile()
     {
         return zfile;
-    }
-
-    public List<Codec> getSegmentFilters()
-    {
-        return segmentFilters;
     }
 }

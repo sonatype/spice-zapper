@@ -16,15 +16,11 @@ import org.sonatype.spice.zapper.Path;
 import org.sonatype.spice.zapper.ZFile;
 import org.sonatype.spice.zapper.internal.Check;
 import org.sonatype.spice.zapper.internal.Payload;
-import org.sonatype.spice.zapper.internal.PayloadSupplier;
-import org.sonatype.spice.zapper.internal.PayloadSupplierImpl;
 import org.sonatype.spice.zapper.internal.Protocol;
-import org.sonatype.spice.zapper.internal.Segment;
-import org.sonatype.spice.zapper.internal.TransferIdentifier;
+import org.sonatype.spice.zapper.internal.Transfer;
 import org.sonatype.spice.zapper.internal.wholefile.WholeZFileProtocol;
 
-
-public abstract class AbstractClient
+public abstract class AbstractClient<T extends Track>
     implements Client
 {
     private final Logger logger;
@@ -33,11 +29,14 @@ public abstract class AbstractClient
 
     private final String remoteUrl;
 
+    private final Protocol protocol;
+
     public AbstractClient( final Parameters parameters, final String remoteUrl )
     {
         this.logger = LoggerFactory.getLogger( getClass() );
         this.parameters = Check.notNull( parameters, Parameters.class );
         this.remoteUrl = Check.notNull( remoteUrl, "Remote URL is null!" );
+        this.protocol = handshake();
     }
 
     public String getRemoteUrl()
@@ -71,35 +70,33 @@ public abstract class AbstractClient
         throw new UnsupportedOperationException( "Not implemented!" );
     }
 
-    protected void upload( final IOSource source, final List<ZFile> zfiles )
+    protected void upload( final IOSource source, final List<ZFile> _zfiles )
         throws IOException
     {
-        final TransferIdentifier transferId = new TransferIdentifier( UUID.randomUUID().toString() );
-        final Protocol protocol = handshake( transferId );
-        getLogger().info( "Starting upload transfer ID \"{}\" (using protocol \"{}\")", transferId.stringValue(),
-            protocol.getIdentifier().stringValue() );
+        final Transfer transfer = new Transfer( UUID.randomUUID().toString(), _zfiles );
+        getLogger().info( "Starting upload transfer ID \"{}\" (using protocol \"{}\")",
+            transfer.getIdentifier().stringValue(), protocol.getIdentifier().stringValue() );
 
-        final List<Segment> segments = protocol.getSegmentCreator().createSegments( transferId, zfiles );
-        final int trackCount = Math.min( getParameters().getMaximumTrackCount(), segments.size() );
+        // segment it
+        final int segmentCount = protocol.getSegmentCreator().createSegments( transfer );
 
-        final List<Payload> payloads =
-            protocol.getPayloadCreator().createPayloads( transferId, source, segments, getRemoteUrl() );
-        final PayloadSupplier payloadSupplier = new PayloadSupplierImpl( payloads );
+        // track count
+        final int trackCount = Math.min( getParameters().getMaximumTrackCount(), segmentCount );
 
-        long totalSize = 0;
-        for ( ZFile zfile : zfiles )
-        {
-            totalSize += zfile.getLength();
-        }
+        // payload the segments
+        final int payloadCount = protocol.getPayloadCreator().createPayloads( transfer, source, getRemoteUrl() );
 
-        getLogger().info( "Uploading total of {} bytes (in {} files) as {} segments over {} tracks.",
-            new Object[] { totalSize, zfiles.size(), segments.size(), trackCount } );
+        getLogger().info(
+            "Uploading total of {} bytes (in {} files) as {} segments ({} payloads) over {} tracks.",
+            new Object[] { transfer.getTotalSize(), transfer.getZfiles().size(), segmentCount, payloadCount, trackCount } );
 
         final long started = System.currentTimeMillis();
         boolean success = false;
         try
         {
-            doUpload( protocol, trackCount, payloadSupplier );
+            protocol.beforeUpload( transfer, this );
+            doUpload( transfer, protocol, trackCount );
+            protocol.afterUpload( transfer, this );
             success = true;
         }
         finally
@@ -124,11 +121,30 @@ public abstract class AbstractClient
 
     // ==
 
-    protected Protocol handshake( final TransferIdentifier transferIdentifier )
+    protected Protocol handshake()
     {
         // safest, we will see later for real handshake
-        return new WholeZFileProtocol( transferIdentifier );
+        return new WholeZFileProtocol( getParameters() );
     }
+
+    /**
+     * Uploads a payload.
+     * 
+     * @param payload
+     * @throws IOException
+     */
+    public abstract State upload( Payload payload )
+        throws IOException;
+
+    /**
+     * Uploads a payload on given track.
+     * 
+     * @param payload
+     * @param track
+     * @throws IOException
+     */
+    public abstract State upload( Payload payload, T track )
+        throws IOException;
 
     /**
      * Performs actual operation. Either returns cleanly (which is considered as "success"), or should throw
@@ -139,7 +155,6 @@ public abstract class AbstractClient
      * @param payloadSupplier
      * @throws IOException
      */
-    protected abstract void doUpload( final Protocol protocol, final int trackCount,
-                                      final PayloadSupplier payloadSupplier )
+    protected abstract void doUpload( final Transfer transfer, final Protocol protocol, final int trackCount )
         throws IOException;
 }

@@ -1,33 +1,23 @@
 package org.sonatype.spice.zapper.internal;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.sonatype.spice.zapper.hash.Hash;
-import org.sonatype.spice.zapper.hash.HashAlgorithmIdentifier;
 import org.sonatype.spice.zapper.hash.Hashed;
-
 
 public abstract class AbstractHashedRange
     extends AbstractRange
     implements Hashed
 {
-    private final Map<HashAlgorithmIdentifier, Hash> hashMap;
+    private final Hash hash;
 
-    protected AbstractHashedRange( final long offset, final long length, final Hash... hashes )
+    protected AbstractHashedRange( final long offset, final long length, final Hash hash )
     {
         super( offset, length );
-        this.hashMap = new HashMap<HashAlgorithmIdentifier, Hash>( hashes.length );
-        for ( Hash hash : hashes )
-        {
-            hashMap.put( hash.getHashAlgorithmIdentifier(), hash );
-        }
+        this.hash = Check.notNull( hash, Hash.class );
     }
 
-    @Override
-    public Hash getHash( final HashAlgorithmIdentifier hashAlgorithmIdentifier )
+    public Hash getHash()
     {
-        return hashMap.get( hashAlgorithmIdentifier );
+        return hash;
     }
 
     // ==
@@ -35,6 +25,6 @@ public abstract class AbstractHashedRange
     @Override
     public String toString()
     {
-        return super.toString() + "(hashMap=" + hashMap + ")";
+        return super.toString() + "(hash=" + getHash() + ")";
     }
 }

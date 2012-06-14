@@ -1,15 +1,18 @@
 package org.sonatype.spice.zapper.client.ahc;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
 import org.sonatype.spice.zapper.AggregatingIOException;
 import org.sonatype.spice.zapper.Parameters;
 import org.sonatype.spice.zapper.internal.Check;
 import org.sonatype.spice.zapper.internal.Payload;
-import org.sonatype.spice.zapper.internal.PayloadSupplier;
 import org.sonatype.spice.zapper.internal.Protocol;
+import org.sonatype.spice.zapper.internal.Transfer;
 import org.sonatype.spice.zapper.internal.transport.AbstractClient;
+import org.sonatype.spice.zapper.internal.transport.State;
+import org.sonatype.spice.zapper.internal.transport.TrackIdentifier;
 
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
@@ -18,9 +21,8 @@ import com.ning.http.client.ProxyServer;
 import com.ning.http.client.Realm;
 import com.ning.http.client.Response;
 
-
 public class AhcClient
-    extends AbstractClient
+    extends AbstractClient<AhcTrack>
     implements Executor
 {
     private final AsyncHttpClient asyncHttpClient;
@@ -52,13 +54,14 @@ public class AhcClient
     // ==
 
     @Override
-    protected void doUpload( final Protocol protocol, final int trackCount, final PayloadSupplier payloadSupplier )
+    protected void doUpload( final Transfer transfer, final Protocol protocol, final int trackCount )
         throws IOException
     {
         final AhcTrack[] tracks = new AhcTrack[trackCount];
         for ( int i = 0; i < trackCount; i++ )
         {
-            tracks[i] = new AhcTrack( this, payloadSupplier );
+            tracks[i] =
+                new AhcTrack( new TrackIdentifier( "T" + String.valueOf( i ) ), this, transfer.getPayloadSupplier() );
         }
         final IOException[] trackExceptions = new IOException[trackCount];
         boolean success = true;
@@ -78,7 +81,7 @@ public class AhcClient
         }
     }
 
-    protected ListenableFuture<Response> upload( final Payload payload, final AhcTrack ahcTrack )
+    public State upload( final Payload payload, final AhcTrack ahcTrack )
         throws IOException
     {
         final String url = getRemoteUrl() + payload.getPath().stringValue();
@@ -93,7 +96,47 @@ public class AhcClient
         {
             requestBuilder.setProxyServer( proxyServer );
         }
-        return asyncHttpClient.executeRequest( requestBuilder.build() );
+        ListenableFuture<Response> future = asyncHttpClient.executeRequest( requestBuilder.build() );
+        ahcTrack.setListenableFuture( future );
+        future.addListener( ahcTrack, this );
+        return State.SUCCESS;
+    }
+
+    public State upload( final Payload payload )
+        throws IOException
+    {
+        final String url = getRemoteUrl() + payload.getPath().stringValue();
+        final BoundRequestBuilder requestBuilder =
+            asyncHttpClient.preparePut( url ).setBody( new ZapperBodyGenerator( payload ) ).setHeader(
+                "X-Zapper-Transfer-ID", payload.getTransferIdentifier().stringValue() );
+        if ( realm != null )
+        {
+            requestBuilder.setRealm( realm );
+        }
+        if ( proxyServer != null )
+        {
+            requestBuilder.setProxyServer( proxyServer );
+        }
+        ListenableFuture<Response> future = asyncHttpClient.executeRequest( requestBuilder.build() );
+        Response response;
+        try
+        {
+            response = future.get();
+        }
+        catch ( InterruptedException e )
+        {
+            return State.FAILURE;
+        }
+        catch ( ExecutionException e )
+        {
+            throw new IOException( "Execution failed!", e );
+        }
+        if ( !( response.getStatusCode() > 199 && response.getStatusCode() < 299 ) )
+        {
+            throw new IOException( String.format( "Unexpected server response: %s %s", response.getStatusCode(),
+                response.getStatusText() ) );
+        }
+        return State.SUCCESS;
     }
 
     @Override

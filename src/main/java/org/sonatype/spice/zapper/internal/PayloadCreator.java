@@ -1,11 +1,11 @@
 package org.sonatype.spice.zapper.internal;
 
-import java.util.List;
+import java.io.IOException;
 
 import org.sonatype.spice.zapper.IOSource;
 
-
 public interface PayloadCreator
 {
-    List<Payload> createPayloads( TransferIdentifier transferId, IOSource source, List<Segment> segments, String remoteUrl );
+    int createPayloads( Transfer transfer, IOSource source, String remoteUrl )
+        throws IOException;
 }

@@ -6,7 +6,7 @@ public class Sha256HashAlgorithm
     extends AbstractMessageDigestHashAlgorithm
     implements HashAlgorithm
 {
-    public static final HashAlgorithmIdentifier ID = new HashAlgorithmIdentifierImpl( "SHA-256", 32 );
+    public static final HashAlgorithmIdentifier ID = new HashAlgorithmIdentifier( "SHA-256", 32 );
 
     public Sha256HashAlgorithm()
         throws NoSuchAlgorithmException

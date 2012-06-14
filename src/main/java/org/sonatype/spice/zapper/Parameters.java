@@ -1,28 +1,24 @@
 package org.sonatype.spice.zapper;
 
-import java.util.Map;
-
-import org.sonatype.spice.zapper.codec.Codec;
-import org.sonatype.spice.zapper.codec.CodecIdentifier;
+import org.sonatype.spice.zapper.codec.NoopCodecSelector;
 import org.sonatype.spice.zapper.hash.HashAlgorithm;
-import org.sonatype.spice.zapper.hash.HashAlgorithmIdentifier;
-
 
 public interface Parameters
 {
     /**
-     * Map of available hash algorithms.
+     * Hash algorithm to use for content verification.
      * 
      * @return
      */
-    Map<HashAlgorithmIdentifier, HashAlgorithm> getHashAlgorithms();
+    HashAlgorithm getHashAlgorithm();
 
     /**
-     * Map of available codecs.
+     * Returns the {@link CodecSelector} to be used, never should return {@code null}. See {@link NoopCodecSelector},
+     * that is used by default in default implementation (unless overridden).
      * 
      * @return
      */
-    Map<CodecIdentifier, Codec> getCodecs();
+    CodecSelector getCodecSelector();
 
     /**
      * How many parallel tracks ("connections") might exist during uploads/downloads. This is a hard maximum, that does

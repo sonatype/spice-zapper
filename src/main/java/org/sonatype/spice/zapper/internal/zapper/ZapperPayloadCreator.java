@@ -1,4 +1,4 @@
-package org.sonatype.spice.zapper.internal.wholefile;
+package org.sonatype.spice.zapper.internal.zapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,16 +12,16 @@ import org.sonatype.spice.zapper.internal.SegmentPayload;
 import org.sonatype.spice.zapper.internal.Transfer;
 
 /**
- * Creates Payloads that are actually whole ZFiles, without any extra fluff.
+ * Zapper
  * 
  * @author cstamas
  */
-public class WholeZFilePayloadCreator
+public class ZapperPayloadCreator
     implements PayloadCreator
 {
     private final Parameters parameters;
 
-    public WholeZFilePayloadCreator( final Parameters parameters )
+    public ZapperPayloadCreator( final Parameters parameters )
     {
         this.parameters = parameters;
     }
@@ -40,11 +40,11 @@ public class WholeZFilePayloadCreator
         return payloads.size();
     }
 
-    protected SegmentPayload createPayload( final Transfer transfer, final Segment segment, final IOSource source,
-                                            final String remoteUrl )
+    protected ZapperPayload createPayload( final Transfer transfer, final Segment segment, final IOSource source,
+                                           final String remoteUrl )
         throws IOException
     {
-        return new SegmentPayload( transfer.getIdentifier(), segment.getZFile().getIdentifier(), segment, source,
+        return new ZapperPayload( transfer.getIdentifier(), segment.getZFile().getIdentifier(), segment, source,
             parameters.getHashAlgorithm() );
     }
 }

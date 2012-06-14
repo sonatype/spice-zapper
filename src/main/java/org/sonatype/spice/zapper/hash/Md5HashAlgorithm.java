@@ -6,7 +6,7 @@ public class Md5HashAlgorithm
     extends AbstractMessageDigestHashAlgorithm
     implements HashAlgorithm
 {
-    public static final HashAlgorithmIdentifier ID = new HashAlgorithmIdentifierImpl( "MD5", 16 );
+    public static final HashAlgorithmIdentifier ID = new HashAlgorithmIdentifier( "MD5", 16 );
 
     public Md5HashAlgorithm()
         throws NoSuchAlgorithmException
