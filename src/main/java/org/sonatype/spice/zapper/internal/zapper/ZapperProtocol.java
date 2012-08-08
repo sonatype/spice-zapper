@@ -1,9 +1,12 @@
 package org.sonatype.spice.zapper.internal.zapper;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.sonatype.spice.zapper.Parameters;
 import org.sonatype.spice.zapper.Path;
+import org.sonatype.spice.zapper.codec.Codec;
+import org.sonatype.spice.zapper.hash.HashUtils;
 import org.sonatype.spice.zapper.internal.AbstractIdentified;
 import org.sonatype.spice.zapper.internal.Check;
 import org.sonatype.spice.zapper.internal.MessagePayload;
@@ -54,8 +57,10 @@ public class ZapperProtocol
     public void beforeUpload( final Transfer transfer, final AbstractClient<?> client )
         throws IOException
     {
+        final byte[] payload = new byte[0];
         final MessagePayload message =
-            new MessagePayload( transfer.getIdentifier(), new Path( "" ), new byte[0], parameters.getHashAlgorithm() );
+            new MessagePayload( transfer.getIdentifier(), new Path( "beforeUpload" ), payload, HashUtils.getDigest(
+                parameters.getHashAlgorithm(), payload ), Collections.<Codec> emptyList() );
         client.upload( message );
     }
 
@@ -63,8 +68,10 @@ public class ZapperProtocol
     public void afterUpload( final Transfer transfer, final AbstractClient<?> client )
         throws IOException
     {
+        final byte[] payload = new byte[0];
         final MessagePayload message =
-            new MessagePayload( transfer.getIdentifier(), new Path( "" ), new byte[0], parameters.getHashAlgorithm() );
+            new MessagePayload( transfer.getIdentifier(), new Path( "afterUpload" ), payload, HashUtils.getDigest(
+                parameters.getHashAlgorithm(), payload ), Collections.<Codec> emptyList() );
         client.upload( message );
     }
 }

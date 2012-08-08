@@ -45,6 +45,6 @@ public class WholeZFilePayloadCreator
         throws IOException
     {
         return new SegmentPayload( transfer.getIdentifier(), segment.getZFile().getIdentifier(), segment, source,
-            parameters.getHashAlgorithm() );
+            segment.getZFile().getHash(), parameters.getCodecSelector().selectCodecs( segment.getZFile() ) );
     }
 }

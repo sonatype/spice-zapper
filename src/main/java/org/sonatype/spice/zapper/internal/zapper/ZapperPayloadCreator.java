@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.sonatype.spice.zapper.IOSource;
 import org.sonatype.spice.zapper.Parameters;
+import org.sonatype.spice.zapper.hash.Hash;
+import org.sonatype.spice.zapper.hash.HashUtils;
 import org.sonatype.spice.zapper.internal.PayloadCreator;
 import org.sonatype.spice.zapper.internal.Segment;
 import org.sonatype.spice.zapper.internal.SegmentPayload;
@@ -44,7 +46,12 @@ public class ZapperPayloadCreator
                                            final String remoteUrl )
         throws IOException
     {
+        // calculate segment's hash, we have to do this always, as we know the hash of whole file only
+        final Hash segmentHash =
+            HashUtils.getDigest( parameters.getHashAlgorithm(),
+                source.readSegment( segment.getZFile().getIdentifier(), segment ) );
+
         return new ZapperPayload( transfer.getIdentifier(), segment.getZFile().getIdentifier(), segment, source,
-            parameters.getHashAlgorithm() );
+            parameters.getHashAlgorithm(), segmentHash, parameters.getCodecSelector().selectCodecs( segment.getZFile() ) );
     }
 }

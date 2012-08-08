@@ -6,9 +6,11 @@ import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.sonatype.spice.zapper.IOSource;
 import org.sonatype.spice.zapper.Path;
+import org.sonatype.spice.zapper.codec.Codec;
 import org.sonatype.spice.zapper.hash.Hash;
 import org.sonatype.spice.zapper.hash.HashAlgorithm;
 import org.sonatype.spice.zapper.hash.HashUtils;
@@ -25,14 +27,15 @@ public class ZapperPayload
     private final byte[] header;
 
     private final byte[] footer;
-    
+
     private final Hash envelopeHash;
 
     public ZapperPayload( final TransferIdentifier transferIdentifier, final Path path, final Segment segment,
-                          final IOSource ioSource, final HashAlgorithm hashAlgorithm )
+                          final IOSource ioSource, final HashAlgorithm hashAlgorithm, final Hash segmentHash,
+                          final List<Codec> codecs )
         throws IOException
     {
-        super( transferIdentifier, path, segment, ioSource, hashAlgorithm );
+        super( transferIdentifier, path, segment, ioSource, segmentHash, codecs );
         this.header = createSegmentHeader();
         this.footer = createSegmentFooter();
         this.envelopeHash = HashUtils.getDigest( hashAlgorithm, getContent() );
@@ -43,7 +46,7 @@ public class ZapperPayload
     {
         return header.length + super.getLength() + footer.length;
     }
-    
+
     @Override
     public Hash getHash()
     {

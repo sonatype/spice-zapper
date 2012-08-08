@@ -4,10 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import org.sonatype.spice.zapper.Path;
+import org.sonatype.spice.zapper.codec.Codec;
 import org.sonatype.spice.zapper.hash.Hash;
-import org.sonatype.spice.zapper.hash.HashAlgorithm;
 
 /**
  * Message payload holds small array of bytes, that will be sent over the wire. It is unaware of the content.
@@ -15,35 +16,16 @@ import org.sonatype.spice.zapper.hash.HashAlgorithm;
  * @author cstamas
  */
 public class MessagePayload
+    extends AbstractPayload
     implements Payload
 {
-    private final TransferIdentifier transferIdentifier;
-
-    private final Path path;
-
     private final byte[] message;
 
-    private final Hash hash;
-
     public MessagePayload( final TransferIdentifier transferIdentifier, final Path path, final byte[] message,
-                           final HashAlgorithm hashAlgorithm )
+                           final Hash hash, final List<Codec> codecs )
     {
-        this.transferIdentifier = transferIdentifier;
-        this.path = path;
+        super( transferIdentifier, path, hash, codecs );
         this.message = Arrays.copyOf( message, message.length );
-        this.hash = hashAlgorithm.hash( message );
-    }
-
-    @Override
-    public TransferIdentifier getTransferIdentifier()
-    {
-        return transferIdentifier;
-    }
-
-    @Override
-    public Path getPath()
-    {
-        return path;
     }
 
     @Override
@@ -57,12 +39,6 @@ public class MessagePayload
         throws IOException
     {
         return new ByteArrayInputStream( message );
-    }
-
-    @Override
-    public Hash getHash()
-    {
-        return hash;
     }
 
     // ==
