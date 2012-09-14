@@ -3,34 +3,116 @@ Zapper
 
 Zapper is small utility for simple but fast content upload and download over some existing application protocol (primarily focused on HTTP, but other protocols like SCP or FTP might work too).
 
-Original use case: imagine you have a _set of files_ that you want to transport over the wire. Those files belong to a logical whole, and you want to handle them as _logically one_ entity. Also, the files in the set might totally differ in their properties: you might have some small files, few bytes long ones, some long text/XML/JSON files that compress well, and huge binary uncompressed and compressed ones, and even gigantic -- talking about gigabytes -- files.
+Original use case: imagine you have a _set of files_ that you want to transport over the wire. Those files belong to a logical whole, and you want to handle (upload or download, you want "all or nothing") them as _logically one_ entity. Also, the files in the set might totally differ in their properties: you might have some small files, few bytes long ones, some long text/XML/JSON files that compress well, and huge binary uncompressed and compressed ones, and even gigantic -- talking about gigabytes -- files.
 
-If, for a moment, we stay with HTTP protocol, you have these options:
+The worst case is upload them (in case of HTTP with PUT for example) one-by-one. The total time you spend uploading will be sum of each upload times (there are still even worse cases, like HTTP/1.0 vs HTTP/1.1 with connection reestablished per request etc). Also, in this case, the actual transfer _does not handle the files as logically one_: you are the one who needs to take care that operation ends as "all or nothing", the error handling, possible recovery is your burden.
 
-* Serialized HTTP/1.0 requests - this is the "dumbest" but also simplest way to transport them. While remote might not be HTTP/1.0 server, clients are usually still doing this: establish connection, perform the PUT/POST, tear down connection. Slow, as it takes sum(f1..fn). No error recovery (unless you code per file one). Now client nor server actually handles upload as _logically one_ entity. Typically, this transport is used by "lightweight HTTP Wagon"", a transport used by Maven2 to perform deploys.
-* Parallel HTTP/1.0 requests - a bit better than previous one. Almost same stands as for serialized one, there is also the burden on your side to code threading and/or async stuff. Ideally, the transport time here in ideal circumstances (each file upload starts together, you have as many requests as many files) gets to max(f1..fn). Clearly, this is not ideal if you files with "unbalanced sizes": one file of 2kB and one of 600MB, parallelization does not buys you much. But opening large number of requests is not always feasible, as opening 100 simultaneous requests might be detected as "attack" on server side.
-* Serialized HTTP/1.1 requests - benefit of this over HTTP/1.0 one is to save the time needed to establish TCP session, as connection might be reused (naturally, this needs your side to obey this too, usually not a problem with HTTP client libraries).
-* Parallel HTTP/1.1 requests - almost same as parallel HTTP/1.0 with the benefit of reused connection.
-* HTTP Range use, spawn multiple requests sending/receiving part ranges.
+Next case would be to have some sort of _one HTTP request_ but carrying _all the files_. Typically, like MIME Multipart body. Drawback of this approach is that in case you need to transport 1G, you'd actually transport 1.33G over the wire due to Base64 encoding overhead. Moreover, you need some
+server side support for this too.
 
-And one more:
+Okay, then let's ZIP them (compressed or just stored, whatever), and have single stream of bytes for single HTTP request. Sounds okay, but still, the transport would take a bit less then the first case (one HTTP request per one file), and there is no connection and HTTP request-response roundtrip,
+but you still transport all the bytes over the wire sequentially. Also, this solution would need support on server side: something that receives ZIP, checks for transport errors, unpacks etc.
 
-* to have one request, that would have a MIME Multipart body holding all the files. This is actually the worse of all the solutions above, due to needed Base64 encoding of files being "parts", ending up in even more bytes being transferred than your payload is.
+And, all these above you usually has to implement from scratch, but just that: transport consistency, error handling, operation resume, all is on your desk.
 
-Problems with these above is you need to code it, and while these above are "most compatible" ways to perform this task, as there is no need to have any "server side" component (except a normal HTTP Server, which is not a problem), you still _do not have_ your main goal: to have files handled as logically one set.
+Zapper protocols
+================
+
+Zapper intends to implement 3 basic "protocols":
+
+* "whole-file" - this is the simplest and "most compatible" protocol for uploading and downloading, as it does not require any server-side support. All it does is simply starts N (configurable) worker threads, and each of one pulls one file from the "pool of uploadable/downloadable files" and does the job.
+All of them iterate as long as there are files in the pool. This protocol works the best if the files you upload are pretty much the same size. Naturally, worst case (where this protocol does not help much) is when N=2 and you upload total of 1G distributed in 2 files: one of 0.9G and one of 0.1G.
+* "ranged-file" - similar to zapper, but transport integrity checks are less enforced: it needs a remote server (HTTP for example) that supports "ranges" (like for HTTP Servers the "Accept-Ranges: bytes" header). Algorithm of "segmenting" is similar as for "zapper" protocol.
+* "zapper" - this protocol needs server side support, and works similar to BitTorrent but in P2P fashion: it "segments" the files in pretty much same sized segments, and distributes the segment upload/download over N threads. All segments, each file and total transport is also checked for integrity. The segment size is adjustable, and can be easily adapted to "best fit", it's not wired to 1MB or so.
+
+Examples (segment max size is for example's clarity set to some size, but it's variable. The longer the string behind "Tx=" the longer the transport takes):
+
+```
+  File to upload (chars stands for one MB, HTTP requests are in braces):
+    fileA = 1MB
+    fileB = 1MB
+    N = 2
+    
+  whole-file protocol:
+    T1 = {A}
+    T2 = {B}
+  zapper protocol (segment max size 1MB):
+    T1 = {A}
+    T2 = {B}
+```
+
+```
+  File to upload (chars stands for one MB, HTTP requests are in braces):
+    fileA = 1MB
+    fileB = 10MB
+    N = 2
+
+  whole-file protocol:
+    T1 = {A}
+    T2 = {BBBBBBBBBB}
+  zapper protocol (segment max size 2MB):
+    T1 = {A}{BB}{BB}
+    T2 = {BB}{BB}{BB}
+```
+
+Examples of zapper vs whole-file protocol for same payload and different N:
+
+```
+  File to upload (chars stands for one MB, HTTP requests are in braces):
+    fileA = 1MB
+    fileB = 10MB
+    fileC = 15MB
+
+  N = 2
+  whole-file protocol:
+    T1 = {A}{CCCCCCCCCCCCCCC}
+    T2 = {BBBBBBBBBB}
+  zapper protocol (segment size 4MB):
+    T1 = {A}{BBBB}{CCCC}{CCCC}
+    T2 = {BBBB}{BB}{CCCC}{CCC}
+
+  N = 4
+  whole-file protocol:
+    T1 = {A}
+    T2 = {BBBBBBBBBB}
+    T3 = {CCCCCCCCCCCCCCC}
+    T4 =
+  zapper protocol (segment size 4MB):
+    T1 = {A}{CCCC}
+    T2 = {BBBB}{CCCC}
+    T3 = {BBBB}{CCCC}
+    T4 = {BB}{CCC}
+
+  N = 6
+  whole-file protocol:
+    T1 = {A}
+    T2 = {BBBBBBBBBB}
+    T3 = {CCCCCCCCCCCCCCC}
+    T4 =
+    T5 =
+    T6 =
+  zapper protocol (segment size 4MB):
+    T1 = {A}{CCCC}
+    T2 = {BBBB}
+    T3 = {BBBB}
+    T4 = {BB}{CCC}
+    T5 = {CCCC}
+    T6 = {CCCC}
+```
+
+As you see, with smaller N, zapper protocol might get worse than whole-file (doe to many request roundtrips), but as N grows, it even halves the transport time. Default N in Zapper is 6.
 
 "WTF is Zapper"?
 ====
 
-Zapper makes a step further: these approaches above are all supported by it, but if zapper is supported by server side too (it's transparently detected by the library), you have one more options:
+In short, Zapper makes all these approaches above supported out of the box (with or without server side support, is detected transparently), but if Zapper is supported by server side too, you have one more options:
 
 * chop files into "segments". Segment size is variable, every file smaller than some "configurable threshold" is taken as one segment, but files larger than "configurable threshold" are segmented into multiple segments.
-* upload the payloads segment-by-segment over configurable count of "tracks" to achieve "best payload distribution", every track is made nearly same sized.
+* upload the payloads segment-by-segment over configurable count of "tracks" (ran by threads) to achieve "best payload distribution", every track is made nearly same sized.
 * upload assembled tracks in parallel, every track (might be one or more segment) is one actual connection (HTTP Request) to server
-* reassemble the payload back into files on server side, verify success by hashing
+* reassemble the payload back into files on server side, verify success by integrity on segment, file and whole transport level
 
-If you leave out "chopping" (files are made into 1:1 segments), you end up with simplest (and most compatible) protocol Zapper supports: "whole-file". It simply uploads all the files in parallel, over fixed count of "tracks" (here, transfer time will be max time of a track, that might peak if you have huge files present).
-
+If you leave out "chopping" (files _are the segments_, make them into 1:1 segments), you end up with simplest (and most compatible) protocol Zapper supports: "whole-file". It simply uploads all the files in parallel, over fixed count of "tracks" (here, transfer time will be max time of a track, that might peak if you have huge files present).
 
 How it works
 ------------
@@ -41,34 +123,17 @@ The client side is rather simple to use: you need to grab a "handle" to the give
 
 "File" and "Directory" may refer to actual OS files and directories, but does not have to. Everyone can roll their own implementations, but `java.io.File` based implementations are provided out of the box.
 
-(TBD) The server side is implemented in a way to not have any dependency on actual server side being run (HTTP, J2EE Servlet, etc), so it might even work as Servlet, but also as FTPlet within Apache FTP Server. Main goal was to make this work over HTTP.
+(TBD) The server side is implemented in a way to not have any dependency on actual server side being run (HTTP, J2EE Servlet, etc), so it might even work as Servlet, but also FTPlet within Apache FTP Server is considered. Main goal was to make this work over HTTP.
 
 The initial setup is following: on upload, client side "enumerates" the Files to be uploaded, sums their total size, and based on count of connections to use (configurable), does a "weighed distribution" of the payload segments over connections. Then client sends this "message" -- the list of payload and segments mapping -- to server, where it ack it, and sends back a "job ticket". And the actual upload happens in parallel, of the segmented payload, on multiple channels for fastest possible transfer. Channels belonging to single transaction are all equipped with "job ticket". Then, on server side, the segments are "reassembled" into initial payload.
 
 In case of download, similarly, client asks for a download, server side "enumerates" the payload, sends the list of payload and segments to client, together with "job ticket", and client starts the download on multiple channels.
 
-Protocol
---------
+Notes
+-----
 
-For uploading content:
+Only "whole-file" upload is implemented so far!
 
-0) If remote is detected as non-zapper server, Zapper Clients falls back to most compatible "whole-file" protocol, simple parallel uploads and downloads. The parameter "max track count" in this case is used to limit max connection count.
-
-Nothing below this is implemented yet.
-
-1) Client: assembles the payload (that consists of single or multiple ZFiles). Calculates the "segments", and assembles the "recipe", that contains file(seg1, seg2, …) mappings for all files in the payload. Calculates hashes for all files and segments, and using those creates references in "recipe". Recipe contains the channel numbers clients want to use (configurable).
-
-2) Client uploads the recipe to server, and waits for response.
-
-3) Server receives the recipe, acknowledges it, and responds to client with "ok" or some error. In case of "ok", the response contains the "adjusted" number of channels to use, might be same as client, or might be less. Response contains the "job ticket too".
-
-4) Client opens as many channels as told by server, and starts pushing the segments.
-
-5) Server receives the segments and stores them to temporary storage.
-
-6) On transfer end, client simply hangs up (as server has all the info needed to perform success validation of the transfer).
-
-7) Server, using the recipe, and by calculating checksums as it was receiving the segments, verifies that all the segments has right checksums. Then, using recipe, starts "assembling" the payload back into it's original form (file or files). Finally, it verifies that outcome (the payload) checksums matches those in the original recipe, and hands over the uploaded content to some subsystem (into what Zapper is integrated on server side).
 
 Ideas
 -----
