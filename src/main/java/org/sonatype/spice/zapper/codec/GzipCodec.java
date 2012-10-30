@@ -19,14 +19,12 @@ public class GzipCodec
         super( ID );
     }
 
-    @Override
     public OutputStream encode( final OutputStream outputStream )
         throws IOException
     {
         return new GZIPOutputStream( outputStream );
     }
 
-    @Override
     public InputStream decode( InputStream inputStream )
         throws IOException
     {

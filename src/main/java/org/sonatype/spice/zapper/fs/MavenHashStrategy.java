@@ -23,13 +23,11 @@ public class MavenHashStrategy
         }
     }
 
-    @Override
     public HashAlgorithm getHashAlgorithm()
     {
         return hashAlgorithm;
     }
 
-    @Override
     public Hash getHashFor( final File file )
         throws IOException
     {

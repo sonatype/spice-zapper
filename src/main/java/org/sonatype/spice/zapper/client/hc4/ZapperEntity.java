@@ -29,13 +29,11 @@ public class ZapperEntity
         this.codecs = Check.notNull( codecs, Codec.class );
     }
 
-    @Override
     public boolean isRepeatable()
     {
         return true;
     }
 
-    @Override
     public long getContentLength()
     {
         if ( codecs.isEmpty() )
@@ -48,7 +46,6 @@ public class ZapperEntity
         }
     }
 
-    @Override
     public InputStream getContent()
         throws IOException, IllegalStateException
     {
@@ -57,7 +54,6 @@ public class ZapperEntity
 
     private final int BUFFER_SIZE = 2048;
 
-    @Override
     public void writeTo( final OutputStream _outstream )
         throws IOException
     {
@@ -103,7 +99,6 @@ public class ZapperEntity
         }
     }
 
-    @Override
     public boolean isStreaming()
     {
         return false;

@@ -68,7 +68,6 @@ public class DirectoryIOSource
         this.hashStrategy = Check.notNull( hashStrategy, HashStrategy.class );
     }
 
-    @Override
     public ZFile createZFile( final Path path )
         throws IOException
     {
@@ -76,7 +75,6 @@ public class DirectoryIOSource
         return createZFile( path, file );
     }
 
-    @Override
     public InputStream readSegment( final Path path, final Range range )
         throws IOException
     {
@@ -99,14 +97,12 @@ public class DirectoryIOSource
         }
     }
 
-    @Override
     public void close( final boolean successful )
         throws IOException
     {
         // nothing
     }
 
-    @Override
     public List<ZFile> listFiles()
         throws IOException
     {

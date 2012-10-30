@@ -18,7 +18,6 @@ public class PayloadSupplierImpl
         this.payloadIterator = payloads.iterator();
     }
 
-    @Override
     public synchronized SegmentPayload getNextPayload()
     {
         if ( payloadIterator.hasNext() )

@@ -19,13 +19,11 @@ public class ZFileImpl
         this.lastModified = lastModified;
     }
 
-    @Override
     public Path getIdentifier()
     {
         return path;
     }
 
-    @Override
     public long getLastModifiedTimestamp()
     {
         return lastModified;

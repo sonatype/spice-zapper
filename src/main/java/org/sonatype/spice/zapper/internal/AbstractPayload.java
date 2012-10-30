@@ -33,25 +33,21 @@ public abstract class AbstractPayload
         this.codecs = Collections.unmodifiableList( cds );
     }
 
-    @Override
     public TransferIdentifier getTransferIdentifier()
     {
         return transferIdentifier;
     }
 
-    @Override
     public Path getPath()
     {
         return path;
     }
 
-    @Override
     public Hash getHash()
     {
         return hash;
     }
 
-    @Override
     public List<Codec> getCodecs()
     {
         return codecs;

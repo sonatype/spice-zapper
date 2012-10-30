@@ -17,7 +17,6 @@ public class SimpleCallableExecutor
         this.executorService = Executors.newFixedThreadPool( size );
     }
 
-    @Override
     public <T> Future<T> submit( Callable<T> task )
     {
         return executorService.submit( task );

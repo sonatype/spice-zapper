@@ -18,13 +18,11 @@ public class CalculateHashStrategy
         this.hashAlgorithm = Check.notNull( hashAlgorithm, HashAlgorithm.class );
     }
 
-    @Override
     public HashAlgorithm getHashAlgorithm()
     {
         return hashAlgorithm;
     }
 
-    @Override
     public Hash getHashFor( final File file )
         throws IOException
     {

@@ -26,25 +26,21 @@ public class ParametersImpl
             Check.argument( maximumSegmentLength > 0, maximumSegmentLength, "maximumSegmentLength must be positive!" );
     }
 
-    @Override
     public HashAlgorithm getHashAlgorithm()
     {
         return hashAlgorithm;
     }
 
-    @Override
     public CodecSelector getCodecSelector()
     {
         return codecSelector;
     }
 
-    @Override
     public int getMaximumTrackCount()
     {
         return maximumTrackCount;
     }
 
-    @Override
     public long getMaximumSegmentLength()
     {
         return maximumSegmentLength;

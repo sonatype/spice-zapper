@@ -55,38 +55,32 @@ public class SegmentPayload
         return segment;
     }
 
-    @Override
     public TransferIdentifier getTransferIdentifier()
     {
         return transferIdentifier;
     }
 
-    @Override
     public Path getPath()
     {
         return path;
     }
 
-    @Override
     public long getLength()
     {
         return segment.getLength();
     }
 
-    @Override
     public InputStream getContent()
         throws IOException
     {
         return ioSource.readSegment( segment.getZFile().getIdentifier(), segment );
     }
 
-    @Override
     public Hash getHash()
     {
         return hash;
     }
 
-    @Override
     public List<Codec> getCodecs()
     {
         return codecs;

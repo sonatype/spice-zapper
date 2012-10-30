@@ -14,7 +14,6 @@ import org.sonatype.spice.zapper.ZFile;
 public class NoopCodecSelector
     implements CodecSelector
 {
-    @Override
     public List<Codec> selectCodecs( final ZFile zfile )
     {
         return Collections.emptyList();

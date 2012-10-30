@@ -35,7 +35,6 @@ public abstract class AbstractChargerClient<T extends AbstractChargerTrack>
         this.executor = new SimpleCallableExecutor( parameters.getMaximumTrackCount() );
     }
 
-    @Override
     public void close()
     {
         executor.shutdown();
@@ -63,13 +62,17 @@ public abstract class AbstractChargerClient<T extends AbstractChargerTrack>
         {
             if ( e.getCause() == null )
             {
-                throw new IOException( "IO failure", e );
+                final IOException ee = new IOException( "IO failure" );
+                ee.initCause( e );
+                throw ee;
             }
             throw e;
         }
         catch ( Exception e )
         {
-            throw new IOException( e );
+            final IOException ee = new IOException( "IO failure" );
+            ee.initCause( e );
+            throw ee;
         }
     }
 
@@ -80,7 +83,6 @@ public abstract class AbstractChargerClient<T extends AbstractChargerTrack>
 
     protected static ExceptionHandler NON_HANDLING_EXCEPTION_HANDLER = new ExceptionHandler()
     {
-        @Override
         public boolean handle( Exception ex )
         {
             return false;

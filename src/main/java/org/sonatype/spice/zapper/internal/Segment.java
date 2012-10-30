@@ -23,7 +23,6 @@ public class Segment
         this.segmentIdentifier = Check.notNull( segmentIdentifier, SegmentIdentifier.class );
     }
 
-    @Override
     public SegmentIdentifier getIdentifier()
     {
         return segmentIdentifier;

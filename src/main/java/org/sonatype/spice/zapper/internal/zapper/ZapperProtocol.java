@@ -41,19 +41,16 @@ public class ZapperProtocol
         return parameters;
     }
 
-    @Override
     public SegmentCreator getSegmentCreator()
     {
         return new ZapperSegmentCreator( getParameters().getMaximumSegmentLength() );
     }
 
-    @Override
     public PayloadCreator getPayloadCreator()
     {
         return new ZapperPayloadCreator( getParameters() );
     }
 
-    @Override
     public void beforeUpload( final Transfer transfer, final AbstractClient<?> client )
         throws IOException
     {
@@ -64,7 +61,6 @@ public class ZapperProtocol
         client.upload( message );
     }
 
-    @Override
     public void afterUpload( final Transfer transfer, final AbstractClient<?> client )
         throws IOException
     {

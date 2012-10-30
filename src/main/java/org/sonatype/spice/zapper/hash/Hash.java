@@ -29,7 +29,7 @@ public class Hash
 
     public byte[] byteValue()
     {
-        return Arrays.copyOf( hash, hash.length );
+        return org.sonatype.spice.zapper.internal.Arrays.copyOf( hash, hash.length );
     }
 
     // ==

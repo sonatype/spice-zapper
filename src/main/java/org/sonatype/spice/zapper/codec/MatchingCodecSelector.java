@@ -26,7 +26,6 @@ public class MatchingCodecSelector
         this.codecs = Collections.unmodifiableMap( codecs );
     }
 
-    @Override
     public List<Codec> selectCodecs( ZFile zfile )
     {
         if ( codecs.isEmpty() )

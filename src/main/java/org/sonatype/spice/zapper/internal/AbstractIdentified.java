@@ -13,7 +13,6 @@ public class AbstractIdentified<I extends Identifier>
         this.identifier = Check.notNull( identifier, "Identifier is null!" );
     }
 
-    @Override
     public I getIdentifier()
     {
         return identifier;

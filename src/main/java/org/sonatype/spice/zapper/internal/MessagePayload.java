@@ -3,7 +3,6 @@ package org.sonatype.spice.zapper.internal;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 
 import org.sonatype.spice.zapper.Path;
@@ -28,13 +27,11 @@ public class MessagePayload
         this.message = Arrays.copyOf( message, message.length );
     }
 
-    @Override
     public long getLength()
     {
         return message.length;
     }
 
-    @Override
     public InputStream getContent()
         throws IOException
     {

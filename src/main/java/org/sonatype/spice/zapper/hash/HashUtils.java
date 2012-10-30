@@ -7,11 +7,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
+import org.sonatype.spice.zapper.internal.Arrays;
 import org.sonatype.spice.zapper.internal.Check;
-
 
 /**
  * A utility class to calculate various digests on Strings. Useful for some simple content checks.
@@ -146,7 +146,14 @@ public class HashUtils
 
     public static Hash getDigest( final HashAlgorithm alg, final String content )
     {
-        return getDigest( alg, content.getBytes( CHARSET_UTF8 ) );
+        try
+        {
+            return getDigest( alg, content.getBytes( CHARSET_UTF8_STRING ) );
+        }
+        catch ( UnsupportedEncodingException e )
+        {
+            throw new RuntimeException( "UTF8 not supported?", e );
+        }
     }
 
     // ==

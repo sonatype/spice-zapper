@@ -15,31 +15,26 @@ public abstract class AbstractRange
         this.length = Check.argument( length > 0, length, "Length is less than 1!" );
     }
 
-    @Override
     public long getOffset()
     {
         return offset;
     }
 
-    @Override
     public long getLength()
     {
         return length;
     }
 
-    @Override
     public boolean matches( final Range range )
     {
         return ( getOffset() == range.getOffset() && getLength() == range.getLength() );
     }
 
-    @Override
     public boolean contains( final Range range )
     {
         return ( getOffset() <= range.getOffset() && getLength() >= range.getLength() );
     }
 
-    @Override
     public boolean overlaps( final Range range )
     {
         final long myStart = getOffset();

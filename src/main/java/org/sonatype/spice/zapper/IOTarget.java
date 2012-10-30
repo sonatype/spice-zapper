@@ -11,13 +11,6 @@ import java.io.InputStream;
 public interface IOTarget
 {
     /**
-     * Queries for "free space" on target, as Zapper might decide to reject to receive files based on this.
-     * 
-     * @return free space in bytes or negative if unknown.
-     */
-    long freeSpace();
-
-    /**
      * Invoked before any segment is received, as very first step to prepare for receive. Depending on implementation,
      * this method might do nothing, might just check for free space or even might allocate the needed space and do
      * other book keeping things.

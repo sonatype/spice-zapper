@@ -26,7 +26,6 @@ public class WholeZFilePayloadCreator
         this.parameters = parameters;
     }
 
-    @Override
     public int createPayloads( final Transfer transfer, final IOSource source, final String remoteUrl )
         throws IOException
     {

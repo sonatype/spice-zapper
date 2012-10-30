@@ -19,7 +19,6 @@ public class Hc4Track
         this.hc4Client = hc4Client;
     }
 
-    @Override
     public State call()
         throws IOException
     {

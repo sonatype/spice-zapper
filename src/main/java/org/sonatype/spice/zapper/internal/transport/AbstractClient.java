@@ -44,14 +44,12 @@ public abstract class AbstractClient<T extends Track>
         return remoteUrl;
     }
 
-    @Override
     public void upload( IOSourceListable listableSource )
         throws IOException
     {
         upload( listableSource, listableSource.listFiles() );
     }
 
-    @Override
     public void upload( IOSource source, Path... paths )
         throws IOException
     {
@@ -63,7 +61,6 @@ public abstract class AbstractClient<T extends Track>
         upload( source, zfiles );
     }
 
-    @Override
     public void download( IOTarget target, Path... paths )
         throws IOException
     {

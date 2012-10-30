@@ -37,25 +37,21 @@ public class WholeZFileProtocol
         return parameters;
     }
 
-    @Override
     public SegmentCreator getSegmentCreator()
     {
         return new WholeZFileSegmentCreator();
     }
 
-    @Override
     public PayloadCreator getPayloadCreator()
     {
         return new WholeZFilePayloadCreator( getParameters() );
     }
 
-    @Override
     public void beforeUpload( final Transfer transfer, final AbstractClient<?> client )
     {
         // nop
     }
 
-    @Override
     public void afterUpload( final Transfer transfer, final AbstractClient<?> client )
     {
         // nop

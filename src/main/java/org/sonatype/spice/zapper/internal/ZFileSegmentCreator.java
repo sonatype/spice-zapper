@@ -21,7 +21,6 @@ public abstract class ZFileSegmentCreator
         this.maxSegmentSize = maxSegmentSize;
     }
 
-    @Override
     public int createSegments( final Transfer transfer )
     {
         final List<ZFile> zfiles = transfer.getZfiles();

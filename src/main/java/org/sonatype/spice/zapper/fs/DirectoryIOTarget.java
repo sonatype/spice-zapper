@@ -29,7 +29,6 @@ public class DirectoryIOTarget
         files = new HashMap<Path, File>();
     }
 
-    @Override
     public void close( final boolean successful )
         throws IOException
     {
@@ -42,13 +41,6 @@ public class DirectoryIOTarget
         }
     }
 
-    @Override
-    public long freeSpace()
-    {
-        return getRoot().getFreeSpace();
-    }
-
-    @Override
     public void initializeZFile( final ZFile zfile )
         throws IOException
     {
@@ -59,7 +51,6 @@ public class DirectoryIOTarget
         files.put( zfile.getIdentifier(), file );
     }
 
-    @Override
     public long writeSegment( final ZFile zfile, final Range range, final InputStream in )
         throws IOException
     {
@@ -71,7 +62,6 @@ public class DirectoryIOTarget
         return result;
     }
 
-    @Override
     public void finalizeZFile( ZFile zfile )
         throws IOException
     {

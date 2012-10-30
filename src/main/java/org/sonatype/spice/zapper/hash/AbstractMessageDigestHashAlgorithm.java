@@ -21,13 +21,11 @@ public abstract class AbstractMessageDigestHashAlgorithm
         MessageDigest.getInstance( getIdentifier().stringValue() );
     }
 
-    @Override
     public Hash hash( final byte[] buffer )
     {
         return new Hash( getIdentifier(), getMessageDigest().digest( buffer ) );
     }
 
-    @Override
     public HashingInputStream hashInput( final InputStream input )
     {
         return new HashingInputStream( new DigestInputStream( input, getMessageDigest() ) )
@@ -41,7 +39,6 @@ public abstract class AbstractMessageDigestHashAlgorithm
         };
     }
 
-    @Override
     public HashingOutputStream hashOutput( final OutputStream output )
     {
         return new HashingOutputStream( new DigestOutputStream( output, getMessageDigest() ) )

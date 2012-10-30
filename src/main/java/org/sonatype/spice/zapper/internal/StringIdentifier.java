@@ -12,7 +12,6 @@ public class StringIdentifier
         this.stringValue = Check.notNull( stringValue, "StringValue is null!" );
     }
 
-    @Override
     public String stringValue()
     {
         return stringValue;
