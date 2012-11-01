@@ -1,9 +1,8 @@
 // Zapper
 
-package zapper;
+package org.sonatype.spice.zapper.internal.hawtbuf;
 
-option java_package = "org.sonatype.spice.zapper.internal.protobuf.protos";
-option java_outer_classname = "ZapperProtos";
+option java_multiple_files = true;
 
 // reused messages
 message Hash {
@@ -13,38 +12,38 @@ message Hash {
 
 // vvv Recipe vvv
 
+message File {
+  required string fileId = 1; // file ID
+  required string path = 2; // file path
+  required int64 fileLastModified = 3; // file last modified
+  repeated Hash hashes = 4; // list of known file hashes
+  repeated string filters = 5; // optionally, filters applied to file body as whole (in order)
+}
+
 // transfer message
 message TransferMessage {
   required string magic = 1 [default = "zRec"]; // transfer "magic"
   required string transferId = 2; // transfer ID
   required int64 transferTotalSize = 3; // transfer total "original" size (in bytes)
 
-  message File {
-    required string fileId = 1; // file ID
-    required string path = 2; // file path
-    required int64 fileLastModified = 3; // file last modified
-    repeated Hash hashes = 4; // list of known file hashes
-    repeated string filters = 5; // optionally, filters applied to file body as whole (in order)
-  }
-
   repeated File files = 10; // the list of files
+}
+
+message Segment {
+  required string segmentId = 1; // segment ID
+  required int64 offset = 2; // segment offset from file beginning
+  required int64 length = 3; // segment length
+}
+
+message FileSegments {
+  required string fileId = 1; // file ID
+  repeated Segment segments = 2; // segments in order needed to reassemble the original
 }
 
 // segment message
 message SegmentsMessage {
   required string magic = 1 [default = "zSeg"]; // segments "magic"
   required string transferId = 2; // transfer ID
-
-  message Segment {
-    required string segmentId = 1; // segment ID
-    required int64 offset = 2; // segment offset from file beginning
-    required int64 length = 3; // segment length
-  }
-
-  message FileSegments {
-    required string fileId = 1; // file ID
-    repeated Segment segments = 2; // segments in order needed to reassemble the original
-  }
 
   repeated FileSegments fileSegments = 10; // the list of file segments
 }

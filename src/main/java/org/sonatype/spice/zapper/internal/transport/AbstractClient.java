@@ -85,7 +85,7 @@ public abstract class AbstractClient<T extends Track>
 
         getLogger().info(
             "Uploading total of {} bytes (in {} files) as {} segments ({} payloads) over {} tracks.",
-            new Object[] { transfer.getTotalSize(), transfer.getZfiles().size(), segmentCount, payloadCount, trackCount } );
+            transfer.getTotalSize(), transfer.getZfiles().size(), segmentCount, payloadCount, trackCount);
 
         final long started = System.currentTimeMillis();
         boolean success = false;
