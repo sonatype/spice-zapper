@@ -32,9 +32,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.6.4</slf4j.version>
-    <ahc.version>1.7.4</ahc.version>
-
-    <protoc.executablePath>/usr/local/bin/protoc</protoc.executablePath>
+    <hawtbuf.version>1.9</hawtbuf.version>
   </properties>
 
   <dependencies>
@@ -62,15 +60,13 @@
       <version>4.2.2</version>
       <scope>compile</scope>
     </dependency>
-    
-    <!-- Protobuf -->
+
     <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-      <version>2.4.1</version>
-      <scope>compile</scope>
+      <groupId>org.fusesource.hawtbuf</groupId>
+      <artifactId>hawtbuf-proto</artifactId>
+      <version>${hawtbuf.version}</version>
     </dependency>
-    
+
       <!-- Test -->
     <dependency>
       <groupId>junit</groupId>
@@ -132,6 +128,7 @@
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -142,6 +139,7 @@
             <encoding>${project.build.sourceEncoding}</encoding>
           </configuration>
         </plugin>
+
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
@@ -175,37 +173,16 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
-        <configuration>
-          <target>
-            <mkdir dir="src/main/generated-sources/protos" />
-            <exec executable="${protoc.executablePath}">
-              <arg value="--java_out=src/main/generated-sources/protos" />
-              <arg value="src/main/protobuf/zapper.proto" />
-            </exec>
-          </target>
-          <sourceRoot>src/main/generated-sources/protos</sourceRoot>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.7</version>
+        <groupId>org.fusesource.hawtbuf</groupId>
+        <artifactId>hawtbuf-protoc</artifactId>
+        <version>${hawtbuf.version}</version>
         <executions>
           <execution>
-            <id>add-antrun-generated-sources</id>
-            <phase>generate-sources</phase>
             <goals>
-              <goal>add-source</goal>
+              <goal>compile</goal>
             </goals>
-            <configuration>
-              <sources>
-                <source>src/main/generated-sources/protos</source>
-              </sources>
-            </configuration>
           </execution>
         </executions>
       </plugin>
