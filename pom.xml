@@ -32,7 +32,6 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <slf4j.version>1.7.2</slf4j.version>
-    <ahc.version>1.7.4</ahc.version>
 
     <protoc.executablePath>/usr/local/bin/protoc</protoc.executablePath>
   </properties>
