@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.fusesource.hawtbuf.Buffer;
 import org.sonatype.spice.zapper.IOSource;
 import org.sonatype.spice.zapper.Path;
 import org.sonatype.spice.zapper.codec.Codec;
@@ -17,9 +18,9 @@ import org.sonatype.spice.zapper.hash.HashUtils;
 import org.sonatype.spice.zapper.internal.Segment;
 import org.sonatype.spice.zapper.internal.SegmentPayload;
 import org.sonatype.spice.zapper.internal.TransferIdentifier;
-import org.sonatype.spice.zapper.internal.protobuf.protos.ZapperProtos;
 
-import com.google.protobuf.ByteString;
+import org.sonatype.spice.zapper.internal.hawtbuf.SegmentFooter;
+import org.sonatype.spice.zapper.internal.hawtbuf.SegmentHeader;
 
 public class ZapperPayload
     extends SegmentPayload
@@ -69,30 +70,25 @@ public class ZapperPayload
 
     protected byte[] createSegmentHeader()
     {
-        final org.sonatype.spice.zapper.internal.protobuf.protos.ZapperProtos.SegmentHeader.Builder builder =
-            ZapperProtos.SegmentHeader.newBuilder();
-        builder.setFileId( getSegment().getZFile().getIdentifier().stringValue() );
-        builder.setSegmentId( getIdentifier().stringValue() );
-        builder.setSegmentOffset( getSegment().getOffset() );
-        builder.setSegmentLength( getSegment().getLength() );
+        SegmentHeader header = new SegmentHeader()
+            .setFileId(getSegment().getZFile().getIdentifier().stringValue())
+            .setSegmentId(getIdentifier().stringValue())
+            .setSegmentOffset(getSegment().getOffset())
+            .setSegmentLength(getSegment().getLength());
 
-        // build and persist it
-        return builder.build().toByteArray();
+        return header.toFramedByteArray();
     }
 
     protected byte[] createSegmentFooter()
     {
-        final org.sonatype.spice.zapper.internal.protobuf.protos.ZapperProtos.SegmentFooter.Builder builder =
-            ZapperProtos.SegmentFooter.newBuilder();
+        SegmentFooter footer = new SegmentFooter();
 
         final Hash bodyHash = super.getHash();
-        org.sonatype.spice.zapper.internal.protobuf.protos.ZapperProtos.Hash.Builder hashBuilder =
-            org.sonatype.spice.zapper.internal.protobuf.protos.ZapperProtos.Hash.newBuilder();
-        hashBuilder.setHashAlg( bodyHash.getHashAlgorithmIdentifier().stringValue() );
-        hashBuilder.setHashBytes( ByteString.copyFrom( bodyHash.byteValue() ) );
-        builder.addHashes( hashBuilder.build() );
 
-        // build and persist it
-        return builder.build().toByteArray();
+        footer.addHashes(new org.sonatype.spice.zapper.internal.hawtbuf.Hash()
+            .setHashAlg(bodyHash.getHashAlgorithmIdentifier().stringValue())
+            .setHashBytes(new Buffer(bodyHash.byteValue())));
+
+        return footer.toFramedByteArray();
     }
 }

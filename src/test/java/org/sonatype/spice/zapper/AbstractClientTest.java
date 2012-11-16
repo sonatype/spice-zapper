@@ -13,11 +13,16 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonatype.sisu.litmus.testsupport.TestSupport;
 import org.sonatype.spice.zapper.codec.GzipCodec;
 import org.sonatype.spice.zapper.codec.MatchingCodecSelector;
 import org.sonatype.spice.zapper.fs.DirectoryIOSource;
 
+/**
+ * Support for client tests.
+ */
 public abstract class AbstractClientTest
+    extends TestSupport
 {
     private Server server;
 
