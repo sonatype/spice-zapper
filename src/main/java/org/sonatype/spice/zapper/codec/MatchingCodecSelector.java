@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.sonatype.sisu.charger.internal.Check;
 import org.sonatype.spice.zapper.CodecSelector;
 import org.sonatype.spice.zapper.ZFile;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MatchingCodecSelector
     implements CodecSelector
@@ -64,12 +65,16 @@ public class MatchingCodecSelector
 
         public MatchingCodecSelectorBuilder add( final String regex, final Codec codec )
         {
-            return add( Pattern.compile( Check.notNull( regex, String.class ) ), codec );
+            checkNotNull(regex);
+            checkNotNull(codec);
+            return add( Pattern.compile( regex ), codec );
         }
 
         public MatchingCodecSelectorBuilder add( final Pattern regex, final Codec codec )
         {
-            codecs.put( Check.notNull( regex, Pattern.class ), Check.notNull( codec, Codec.class ) );
+            checkNotNull(regex);
+            checkNotNull(codec);
+            codecs.put( regex, codec );
             return this;
         }
 

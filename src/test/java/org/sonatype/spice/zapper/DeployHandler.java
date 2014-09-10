@@ -105,6 +105,7 @@ public class DeployHandler
 
         if ( HttpMethods.PUT.equals( request.getMethod() ) )
         {
+            System.out.println("PUT " + request.getRequestURI());
             // let's make client push the content too
             consumeStream( request.getInputStream() );
             baseRequest.setHandled( true );
