@@ -7,15 +7,14 @@ import java.io.OutputStream;
 public class NonClosingOutputStream
     extends FilterOutputStream
 {
-    public NonClosingOutputStream( final OutputStream out )
-    {
-        super( out );
-    }
+  public NonClosingOutputStream(final OutputStream out) {
+    super(out);
+  }
 
-    @Override
-    public void close()
-        throws IOException
-    {
-        // not closing it
-    }
+  @Override
+  public void close()
+      throws IOException
+  {
+    // not closing it
+  }
 }

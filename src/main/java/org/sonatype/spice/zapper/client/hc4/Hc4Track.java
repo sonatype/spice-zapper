@@ -11,23 +11,21 @@ import org.sonatype.spice.zapper.internal.transport.TrackIdentifier;
 public class Hc4Track
     extends AbstractChargerTrack
 {
-    private final Hc4Client hc4Client;
+  private final Hc4Client hc4Client;
 
-    public Hc4Track( final TrackIdentifier identifier, final PayloadSupplier payloadSupplier, final Hc4Client hc4Client )
-    {
-        super( identifier, payloadSupplier );
-        this.hc4Client = hc4Client;
-    }
+  public Hc4Track(final TrackIdentifier identifier, final PayloadSupplier payloadSupplier, final Hc4Client hc4Client) {
+    super(identifier, payloadSupplier);
+    this.hc4Client = hc4Client;
+  }
 
-    public State call()
-        throws IOException
-    {
-        Payload payload = getPayloadSupplier().getNextPayload();
-        while ( payload != null )
-        {
-            hc4Client.upload( payload, this );
-            payload = getPayloadSupplier().getNextPayload();
-        }
-        return State.SUCCESS;
+  public State call()
+      throws IOException
+  {
+    Payload payload = getPayloadSupplier().getNextPayload();
+    while (payload != null) {
+      hc4Client.upload(payload, this);
+      payload = getPayloadSupplier().getNextPayload();
     }
+    return State.SUCCESS;
+  }
 }

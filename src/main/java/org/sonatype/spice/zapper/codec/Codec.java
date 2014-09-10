@@ -9,9 +9,9 @@ import org.sonatype.spice.zapper.Identified;
 public interface Codec
     extends Identified<CodecIdentifier>
 {
-    OutputStream encode( OutputStream outputStream )
-        throws IOException;
+  OutputStream encode(OutputStream outputStream)
+      throws IOException;
 
-    InputStream decode( InputStream inputStream )
-        throws IOException;
+  InputStream decode(InputStream inputStream)
+      throws IOException;
 }

@@ -9,8 +9,8 @@ import org.sonatype.spice.zapper.hash.HashAlgorithm;
 
 public interface HashStrategy
 {
-    HashAlgorithm getHashAlgorithm();
+  HashAlgorithm getHashAlgorithm();
 
-    Hash getHashFor( final File file )
-        throws IOException;
+  Hash getHashFor(final File file)
+      throws IOException;
 }

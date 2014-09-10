@@ -12,26 +12,23 @@ import org.sonatype.spice.zapper.internal.Check;
 public class MavenHashStrategy
     implements HashStrategy
 {
-    private final HashAlgorithm hashAlgorithm;
+  private final HashAlgorithm hashAlgorithm;
 
-    public MavenHashStrategy( final HashAlgorithm hashAlgorithm )
-    {
-        this.hashAlgorithm = Check.notNull( hashAlgorithm, HashAlgorithm.class );
-        if ( !Sha1HashAlgorithm.ID.equals( hashAlgorithm.getIdentifier() ) )
-        {
-            throw new IllegalArgumentException( "Maven repository layout supports SHA1 hashes only!" );
-        }
+  public MavenHashStrategy(final HashAlgorithm hashAlgorithm) {
+    this.hashAlgorithm = Check.notNull(hashAlgorithm, HashAlgorithm.class);
+    if (!Sha1HashAlgorithm.ID.equals(hashAlgorithm.getIdentifier())) {
+      throw new IllegalArgumentException("Maven repository layout supports SHA1 hashes only!");
     }
+  }
 
-    public HashAlgorithm getHashAlgorithm()
-    {
-        return hashAlgorithm;
-    }
+  public HashAlgorithm getHashAlgorithm() {
+    return hashAlgorithm;
+  }
 
-    public Hash getHashFor( final File file )
-        throws IOException
-    {
-        return HashUtils.getDigest( Check.notNull( hashAlgorithm, HashAlgorithm.class ),
-            Check.notNull( file, File.class ) );
-    }
+  public Hash getHashFor(final File file)
+      throws IOException
+  {
+    return HashUtils.getDigest(Check.notNull(hashAlgorithm, HashAlgorithm.class),
+        Check.notNull(file, File.class));
+  }
 }

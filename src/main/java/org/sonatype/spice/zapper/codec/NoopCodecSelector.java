@@ -8,14 +8,13 @@ import org.sonatype.spice.zapper.ZFile;
 
 /**
  * {@link CodecSelector} that never selects any {@link Codec}.
- * 
+ *
  * @author cstamas
  */
 public class NoopCodecSelector
     implements CodecSelector
 {
-    public List<Codec> selectCodecs( final ZFile zfile )
-    {
-        return Collections.emptyList();
-    }
+  public List<Codec> selectCodecs(final ZFile zfile) {
+    return Collections.emptyList();
+  }
 }

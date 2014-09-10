@@ -9,9 +9,9 @@ import org.sonatype.spice.zapper.Identified;
 public interface HashAlgorithm
     extends Identified<HashAlgorithmIdentifier>
 {
-    Hash hash( byte[] buffer );
-    
-    HashingInputStream hashInput( InputStream input );
+  Hash hash(byte[] buffer);
 
-    HashingOutputStream hashOutput( OutputStream output );
+  HashingInputStream hashInput(InputStream input);
+
+  HashingOutputStream hashOutput(OutputStream output);
 }

@@ -11,22 +11,20 @@ import org.sonatype.spice.zapper.internal.Check;
 public class CalculateHashStrategy
     implements HashStrategy
 {
-    private final HashAlgorithm hashAlgorithm;
+  private final HashAlgorithm hashAlgorithm;
 
-    public CalculateHashStrategy( final HashAlgorithm hashAlgorithm )
-    {
-        this.hashAlgorithm = Check.notNull( hashAlgorithm, HashAlgorithm.class );
-    }
+  public CalculateHashStrategy(final HashAlgorithm hashAlgorithm) {
+    this.hashAlgorithm = Check.notNull(hashAlgorithm, HashAlgorithm.class);
+  }
 
-    public HashAlgorithm getHashAlgorithm()
-    {
-        return hashAlgorithm;
-    }
+  public HashAlgorithm getHashAlgorithm() {
+    return hashAlgorithm;
+  }
 
-    public Hash getHashFor( final File file )
-        throws IOException
-    {
-        return HashUtils.getDigest( Check.notNull( hashAlgorithm, HashAlgorithm.class ),
-            Check.notNull( file, File.class ) );
-    }
+  public Hash getHashFor(final File file)
+      throws IOException
+  {
+    return HashUtils.getDigest(Check.notNull(hashAlgorithm, HashAlgorithm.class),
+        Check.notNull(file, File.class));
+  }
 }

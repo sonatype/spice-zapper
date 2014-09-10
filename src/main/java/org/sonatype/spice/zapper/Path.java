@@ -6,9 +6,8 @@ import org.sonatype.spice.zapper.internal.StringIdentifier;
 public class Path
     extends StringIdentifier
 {
-    public Path( final String stringValue )
-    {
-        super( stringValue );
-        Check.argument( !stringValue.contains( "\\" ), "Path must contain only forward slashes! path=" + stringValue );
-    }
+  public Path(final String stringValue) {
+    super(stringValue);
+    Check.argument(!stringValue.contains("\\"), "Path must contain only forward slashes! path=" + stringValue);
+  }
 }

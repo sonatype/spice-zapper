@@ -20,108 +20,99 @@ import org.eclipse.jetty.util.resource.Resource;
 public class DeployHandler
     extends HandlerWrapper
 {
-    private final Resource baseResource;
+  private final Resource baseResource;
 
-    private ContextHandler context;
+  private ContextHandler context;
 
-    public DeployHandler( final Resource baseResource )
-    {
-        this.baseResource = baseResource;
+  public DeployHandler(final Resource baseResource) {
+    this.baseResource = baseResource;
+  }
+
+  @Override
+  public void doStart()
+      throws Exception
+  {
+    Context scontext = ContextHandler.getCurrentContext();
+    context = (scontext == null ? null : scontext.getContextHandler());
+    super.doStart();
+  }
+
+  public Resource getResource(String path)
+      throws MalformedURLException
+  {
+    if (path == null || !path.startsWith("/")) {
+      throw new MalformedURLException(path);
     }
 
-    @Override
-    public void doStart()
-        throws Exception
-    {
-        Context scontext = ContextHandler.getCurrentContext();
-        context = ( scontext == null ? null : scontext.getContextHandler() );
-        super.doStart();
-    }
-
-    public Resource getResource( String path )
-        throws MalformedURLException
-    {
-        if ( path == null || !path.startsWith( "/" ) )
-            throw new MalformedURLException( path );
-
-        Resource base = baseResource;
-        if ( base == null )
-        {
-            if ( context == null )
-            {
-                return null;
-            }
-            base = context.getBaseResource();
-            if ( base == null )
-            {
-                return null;
-            }
-        }
-
-        try
-        {
-            path = URIUtil.canonicalPath( path );
-            return base.addPath( path );
-        }
-        catch ( Exception e )
-        {
-            // ignore
-        }
-
+    Resource base = baseResource;
+    if (base == null) {
+      if (context == null) {
         return null;
+      }
+      base = context.getBaseResource();
+      if (base == null) {
+        return null;
+      }
     }
 
-    protected String getResourcePath( HttpServletRequest request )
-        throws MalformedURLException
-    {
-        String servletPath;
-        String pathInfo;
-        final Boolean included = request.getAttribute( Dispatcher.INCLUDE_REQUEST_URI ) != null;
-        if ( included != null && included.booleanValue() )
-        {
-            servletPath = (String) request.getAttribute( Dispatcher.INCLUDE_SERVLET_PATH );
-            pathInfo = (String) request.getAttribute( Dispatcher.INCLUDE_PATH_INFO );
-
-            if ( servletPath == null && pathInfo == null )
-            {
-                servletPath = request.getServletPath();
-                pathInfo = request.getPathInfo();
-            }
-        }
-        else
-        {
-            servletPath = request.getServletPath();
-            pathInfo = request.getPathInfo();
-        }
-
-        return URIUtil.addPaths( servletPath, pathInfo );
+    try {
+      path = URIUtil.canonicalPath(path);
+      return base.addPath(path);
+    }
+    catch (Exception e) {
+      // ignore
     }
 
-    public void handle( String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response )
-        throws IOException, ServletException
-    {
-        if ( baseRequest.isHandled() )
-            return;
+    return null;
+  }
 
-        if ( HttpMethods.PUT.equals( request.getMethod() ) )
-        {
-            System.out.println("PUT " + request.getRequestURI());
-            // let's make client push the content too
-            consumeStream( request.getInputStream() );
-            baseRequest.setHandled( true );
-        }
+  protected String getResourcePath(HttpServletRequest request)
+      throws MalformedURLException
+  {
+    String servletPath;
+    String pathInfo;
+    final Boolean included = request.getAttribute(Dispatcher.INCLUDE_REQUEST_URI) != null;
+    if (included != null && included.booleanValue()) {
+      servletPath = (String) request.getAttribute(Dispatcher.INCLUDE_SERVLET_PATH);
+      pathInfo = (String) request.getAttribute(Dispatcher.INCLUDE_PATH_INFO);
+
+      if (servletPath == null && pathInfo == null) {
+        servletPath = request.getServletPath();
+        pathInfo = request.getPathInfo();
+      }
+    }
+    else {
+      servletPath = request.getServletPath();
+      pathInfo = request.getPathInfo();
     }
 
-    // ==
+    return URIUtil.addPaths(servletPath, pathInfo);
+  }
 
-    protected void consumeStream( final InputStream is )
-        throws IOException
-    {
-        final byte[] buffer = new byte[2048];
-        while ( is.read( buffer ) > -1 )
-        {
-            // nope
-        }
-        is.close();
+  public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+      throws IOException, ServletException
+  {
+    if (baseRequest.isHandled()) {
+      return;
     }
+
+    if (HttpMethods.PUT.equals(request.getMethod())) {
+      System.out.println("PUT " + request.getRequestURI());
+      // let's make client push the content too
+      consumeStream(request.getInputStream());
+      baseRequest.setHandled(true);
+    }
+  }
+
+  // ==
+
+  protected void consumeStream(final InputStream is)
+      throws IOException
+  {
+    final byte[] buffer = new byte[2048];
+    while (is.read(buffer) > -1) {
+      // nope
+    }
+    is.close();
+  }
 }

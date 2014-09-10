@@ -12,22 +12,21 @@ public class GzipCodec
     extends AbstractIdentified<CodecIdentifier>
     implements Codec
 {
-    public static final CodecIdentifier ID = new CodecIdentifier( "gzip" );
+  public static final CodecIdentifier ID = new CodecIdentifier("gzip");
 
-    public GzipCodec()
-    {
-        super( ID );
-    }
+  public GzipCodec() {
+    super(ID);
+  }
 
-    public OutputStream encode( final OutputStream outputStream )
-        throws IOException
-    {
-        return new GZIPOutputStream( outputStream );
-    }
+  public OutputStream encode(final OutputStream outputStream)
+      throws IOException
+  {
+    return new GZIPOutputStream(outputStream);
+  }
 
-    public InputStream decode( InputStream inputStream )
-        throws IOException
-    {
-        return new GZIPInputStream( inputStream );
-    }
+  public InputStream decode(InputStream inputStream)
+      throws IOException
+  {
+    return new GZIPInputStream(inputStream);
+  }
 }

@@ -7,19 +7,19 @@ import org.sonatype.spice.zapper.internal.transport.AbstractClient;
 
 /**
  * Whole file -- most compatible Ranges -- segmented uploads by ranges Zapper -- segmented uploads
- * 
+ *
  * @author cstamas
  */
 public interface Protocol
     extends Identified<ProtocolIdentifier>
 {
-    SegmentCreator getSegmentCreator();
+  SegmentCreator getSegmentCreator();
 
-    PayloadCreator getPayloadCreator();
+  PayloadCreator getPayloadCreator();
 
-    void beforeUpload( Transfer transfer, AbstractClient<?> client )
-        throws IOException;
+  void beforeUpload(Transfer transfer, AbstractClient<?> client)
+      throws IOException;
 
-    void afterUpload( Transfer transfer, AbstractClient<?> client )
-        throws IOException;
+  void afterUpload(Transfer transfer, AbstractClient<?> client)
+      throws IOException;
 }

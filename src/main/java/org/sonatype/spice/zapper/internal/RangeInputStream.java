@@ -9,120 +9,107 @@ import org.sonatype.spice.zapper.Range;
 
 /**
  * A filter stream that makes a sub-range of underlying stream appear on input only.
- * 
+ *
  * @author cstamas
  */
 public class RangeInputStream
     extends FilterInputStream
 {
-    private final Range range;
+  private final Range range;
 
-    private long allowedToRead;
+  private long allowedToRead;
 
-    private boolean allowedToClose;
+  private boolean allowedToClose;
 
-    public RangeInputStream( final InputStream wrappedStream, final Range range, final boolean doSkip,
-                             final boolean allowedToClose )
-        throws IOException
-    {
-        super( wrappedStream );
-        if ( range == null )
-        {
-            throw new NullPointerException( "Range is null!" );
-        }
-
-        this.range = range;
-        this.allowedToRead = range.getLength();
-        this.allowedToClose = allowedToClose;
-        if ( doSkip && range.getOffset() > 0 )
-        {
-            super.skip( range.getOffset() );
-        }
+  public RangeInputStream(final InputStream wrappedStream, final Range range, final boolean doSkip,
+                          final boolean allowedToClose)
+      throws IOException
+  {
+    super(wrappedStream);
+    if (range == null) {
+      throw new NullPointerException("Range is null!");
     }
 
-    public Range getRange()
-    {
-        return range;
+    this.range = range;
+    this.allowedToRead = range.getLength();
+    this.allowedToClose = allowedToClose;
+    if (doSkip && range.getOffset() > 0) {
+      super.skip(range.getOffset());
     }
+  }
 
-    @Override
-    public int available()
-        throws IOException
-    {
-        return mathMin( super.available(), allowedToRead );
+  public Range getRange() {
+    return range;
+  }
+
+  @Override
+  public int available()
+      throws IOException
+  {
+    return mathMin(super.available(), allowedToRead);
+  }
+
+  @Override
+  public int read()
+      throws IOException
+  {
+    if (allowedToRead <= 0) {
+      return -1;
     }
-
-    @Override
-    public int read()
-        throws IOException
-    {
-        if ( allowedToRead <= 0 )
-        {
-            return -1;
-        }
-        final int result = super.read();
-        if ( result >= 0 )
-        {
-            --allowedToRead;
-        }
-        return result;
+    final int result = super.read();
+    if (result >= 0) {
+      --allowedToRead;
     }
+    return result;
+  }
 
-    @Override
-    public int read( byte b[], int off, int len )
-        throws IOException
-    {
-        if ( allowedToRead <= 0 )
-        {
-            return -1;
-        }
-        int lenToRead = mathMin( len, allowedToRead );
-        final int result = super.read( b, off, lenToRead );
-        if ( result >= 0 )
-        {
-            allowedToRead -= result;
-        }
-        return result;
+  @Override
+  public int read(byte b[], int off, int len)
+      throws IOException
+  {
+    if (allowedToRead <= 0) {
+      return -1;
     }
-
-    @Override
-    public long skip( final long n )
-        throws IOException
-    {
-        final long result = super.skip( Math.min( n, allowedToRead ) );
-        if ( result >= 0 )
-        {
-            allowedToRead -= result;
-        }
-        return result;
+    int lenToRead = mathMin(len, allowedToRead);
+    final int result = super.read(b, off, lenToRead);
+    if (result >= 0) {
+      allowedToRead -= result;
     }
+    return result;
+  }
 
-    @Override
-    public void close()
-        throws IOException
-    {
-        if ( allowedToClose )
-        {
-            super.close();
-        }
+  @Override
+  public long skip(final long n)
+      throws IOException
+  {
+    final long result = super.skip(Math.min(n, allowedToRead));
+    if (result >= 0) {
+      allowedToRead -= result;
     }
+    return result;
+  }
 
-    // ==
-
-    protected long getAllowedToRead()
-    {
-        return allowedToRead;
+  @Override
+  public void close()
+      throws IOException
+  {
+    if (allowedToClose) {
+      super.close();
     }
+  }
 
-    protected int mathMin( int a, long b )
-    {
-        if ( b < Integer.MAX_VALUE )
-        {
-            return Math.min( a, (int) b );
-        }
-        else
-        {
-            return a;
-        }
+  // ==
+
+  protected long getAllowedToRead() {
+    return allowedToRead;
+  }
+
+  protected int mathMin(int a, long b) {
+    if (b < Integer.MAX_VALUE) {
+      return Math.min(a, (int) b);
     }
+    else {
+      return a;
+    }
+  }
 }

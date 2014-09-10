@@ -9,86 +9,77 @@ import org.sonatype.spice.zapper.Range;
 
 /**
  * A filter stream that makes a sub-range of underlying stream appear on input only.
- * 
+ *
  * @author cstamas
  */
 public class RangeOutputStream
     extends FilterOutputStream
 {
-    private final Range range;
+  private final Range range;
 
-    private long allowedToWrite;
+  private long allowedToWrite;
 
-    private boolean allowedToClose;
+  private boolean allowedToClose;
 
-    public RangeOutputStream( final OutputStream wrappedStream, final Range range, final boolean allowedToClose )
-        throws IOException
-    {
-        super( wrappedStream );
-        if ( range == null )
-        {
-            throw new NullPointerException( "Range is null!" );
-        }
-
-        this.range = range;
-        this.allowedToWrite = range.getLength();
-        this.allowedToClose = allowedToClose;
+  public RangeOutputStream(final OutputStream wrappedStream, final Range range, final boolean allowedToClose)
+      throws IOException
+  {
+    super(wrappedStream);
+    if (range == null) {
+      throw new NullPointerException("Range is null!");
     }
 
-    public Range getRange()
-    {
-        return range;
-    }
+    this.range = range;
+    this.allowedToWrite = range.getLength();
+    this.allowedToClose = allowedToClose;
+  }
 
-    public void write( int b )
-        throws IOException
-    {
-        if ( allowedToWrite <= 0 )
-        {
-            return;
-        }
-        super.write( b );
-        --allowedToWrite;
-    }
+  public Range getRange() {
+    return range;
+  }
 
-    public void write( byte b[], int off, int len )
-        throws IOException
-    {
-        if ( allowedToWrite <= 0 )
-        {
-            return;
-        }
-        int lenToWrite = mathMin( len, allowedToWrite );
-        super.write( b, off, lenToWrite );
-        allowedToWrite -= lenToWrite;
+  public void write(int b)
+      throws IOException
+  {
+    if (allowedToWrite <= 0) {
+      return;
     }
+    super.write(b);
+    --allowedToWrite;
+  }
 
-    @Override
-    public void close()
-        throws IOException
-    {
-        if ( allowedToClose )
-        {
-            super.close();
-        }
+  public void write(byte b[], int off, int len)
+      throws IOException
+  {
+    if (allowedToWrite <= 0) {
+      return;
     }
+    int lenToWrite = mathMin(len, allowedToWrite);
+    super.write(b, off, lenToWrite);
+    allowedToWrite -= lenToWrite;
+  }
 
-    // ==
-
-    protected long getAllowedToWrite()
-    {
-        return allowedToWrite;
+  @Override
+  public void close()
+      throws IOException
+  {
+    if (allowedToClose) {
+      super.close();
     }
+  }
 
-    protected int mathMin( int a, long b )
-    {
-        if ( b < Integer.MAX_VALUE )
-        {
-            return Math.min( a, (int) b );
-        }
-        else
-        {
-            return a;
-        }
+  // ==
+
+  protected long getAllowedToWrite() {
+    return allowedToWrite;
+  }
+
+  protected int mathMin(int a, long b) {
+    if (b < Integer.MAX_VALUE) {
+      return Math.min(a, (int) b);
     }
+    else {
+      return a;
+    }
+  }
 }

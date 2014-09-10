@@ -5,12 +5,12 @@ import java.util.List;
 
 /**
  * Listable source.
- * 
+ *
  * @author cstamas
  */
 public interface IOSourceListable
     extends IOSource
 {
-    List<ZFile> listFiles()
-        throws IOException;
+  List<ZFile> listFiles()
+      throws IOException;
 }

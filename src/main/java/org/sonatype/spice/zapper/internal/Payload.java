@@ -10,20 +10,20 @@ import org.sonatype.spice.zapper.hash.Hashed;
 
 /**
  * Payload is one "nurb" of content that is sent over the wire.
- * 
+ *
  * @author cstamas
  */
 public interface Payload
     extends Hashed
 {
-    TransferIdentifier getTransferIdentifier();
+  TransferIdentifier getTransferIdentifier();
 
-    Path getPath();
+  Path getPath();
 
-    long getLength();
-    
-    List<Codec> getCodecs();
+  long getLength();
 
-    InputStream getContent()
-        throws IOException;
+  List<Codec> getCodecs();
+
+  InputStream getContent()
+      throws IOException;
 }

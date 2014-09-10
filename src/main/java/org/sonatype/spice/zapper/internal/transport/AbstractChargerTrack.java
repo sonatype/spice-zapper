@@ -9,16 +9,14 @@ public abstract class AbstractChargerTrack
     extends Track
     implements Callable<State>
 {
-    final PayloadSupplier payloadSupplier;
+  final PayloadSupplier payloadSupplier;
 
-    public AbstractChargerTrack( final TrackIdentifier identifier, final PayloadSupplier payloadSupplier )
-    {
-        super( identifier );
-        this.payloadSupplier = Check.notNull( payloadSupplier, PayloadSupplier.class );
-    }
+  public AbstractChargerTrack(final TrackIdentifier identifier, final PayloadSupplier payloadSupplier) {
+    super(identifier);
+    this.payloadSupplier = Check.notNull(payloadSupplier, PayloadSupplier.class);
+  }
 
-    protected PayloadSupplier getPayloadSupplier()
-    {
-        return payloadSupplier;
-    }
+  protected PayloadSupplier getPayloadSupplier() {
+    return payloadSupplier;
+  }
 }

@@ -6,15 +6,13 @@ import org.sonatype.spice.zapper.Identifier;
 public class AbstractIdentified<I extends Identifier>
     implements Identified<I>
 {
-    private final I identifier;
+  private final I identifier;
 
-    public AbstractIdentified( final I identifier )
-    {
-        this.identifier = Check.notNull( identifier, "Identifier is null!" );
-    }
+  public AbstractIdentified(final I identifier) {
+    this.identifier = Check.notNull(identifier, "Identifier is null!");
+  }
 
-    public I getIdentifier()
-    {
-        return identifier;
-    }
+  public I getIdentifier() {
+    return identifier;
+  }
 }

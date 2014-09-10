@@ -7,24 +7,21 @@ public abstract class AbstractHashedRange
     extends AbstractRange
     implements Hashed
 {
-    private final Hash hash;
+  private final Hash hash;
 
-    protected AbstractHashedRange( final long offset, final long length, final Hash hash )
-    {
-        super( offset, length );
-        this.hash = Check.notNull( hash, Hash.class );
-    }
+  protected AbstractHashedRange(final long offset, final long length, final Hash hash) {
+    super(offset, length);
+    this.hash = Check.notNull(hash, Hash.class);
+  }
 
-    public Hash getHash()
-    {
-        return hash;
-    }
+  public Hash getHash() {
+    return hash;
+  }
 
-    // ==
+  // ==
 
-    @Override
-    public String toString()
-    {
-        return super.toString() + "(hash=" + getHash() + ")";
-    }
+  @Override
+  public String toString() {
+    return super.toString() + "(hash=" + getHash() + ")";
+  }
 }
