@@ -2,14 +2,13 @@ package org.sonatype.spice.zapper.client.hc4;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.sonatype.spice.zapper.Parameters;
 import org.sonatype.spice.zapper.internal.Check;
 
@@ -43,25 +42,25 @@ public class Hc4ClientBuilder
 
     public Hc4Client build()
     {
-        final SchemeRegistry schemeRegistry = new SchemeRegistry();
-        schemeRegistry.register( new Scheme( "http", 80, PlainSocketFactory.getSocketFactory() ) );
-        schemeRegistry.register( new Scheme( "https", 443, SSLSocketFactory.getSocketFactory() ) );
+      final Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+          .register("http", PlainConnectionSocketFactory.getSocketFactory())
+          .register("https", SSLConnectionSocketFactory.getSystemSocketFactory()).build();
 
-        ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager( schemeRegistry );
-        cm.setMaxTotal( 200 );
-        cm.setDefaultMaxPerRoute( parameters.getMaximumTrackCount() );
+      final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(registry);
+      cm.setMaxTotal(200);
+      cm.setDefaultMaxPerRoute(parameters.getMaximumTrackCount());
 
-        DefaultHttpClient httpClient = new DefaultHttpClient( cm );
-        httpClient.getParams().setParameter( CoreProtocolPNames.USER_AGENT, "Zapper/1.0-HC4" );
+      final HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().setConnectionManager(cm).setUserAgent("Zapper/1.0-HC4");
+
         if ( proxyServer != null )
         {
-            httpClient.getParams().setParameter( ConnRoutePNames.DEFAULT_PROXY, proxyServer );
+          httpClientBuilder.setProxy(proxyServer);
         }
         if ( credentialsProvider != null )
         {
-            httpClient.setCredentialsProvider( credentialsProvider );
+          httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
         }
 
-        return new Hc4Client( parameters, remoteUrl, httpClient );
+        return new Hc4Client( parameters, remoteUrl, httpClientBuilder.build() );
     }
 }

@@ -5,8 +5,8 @@ import java.util.concurrent.Callable;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.sonatype.spice.zapper.Parameters;
 import org.sonatype.spice.zapper.internal.Check;
@@ -22,18 +22,22 @@ import org.sonatype.spice.zapper.internal.transport.TrackIdentifier;
 public class Hc4Client
     extends AbstractChargerClient<Hc4Track>
 {
-    private final HttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
-    public Hc4Client( final Parameters parameters, final String remoteUrl, final HttpClient httpClient )
+    public Hc4Client( final Parameters parameters, final String remoteUrl, final CloseableHttpClient httpClient )
     {
         super( parameters, remoteUrl );
-        this.httpClient = Check.notNull( httpClient, HttpClient.class );
+        this.httpClient = Check.notNull( httpClient, CloseableHttpClient.class );
     }
 
     @Override
     public void close()
     {
-        httpClient.getConnectionManager().shutdown();
+        try {
+            httpClient.close();
+        } catch (IOException e) {
+            getLogger().warn("Could not cleanly close httpClient", e);
+        }
         super.close();
     }
 

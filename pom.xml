@@ -57,8 +57,23 @@
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <version>4.3.5</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
+    <!-- JCL logging for Apache HC4x (runtime only) -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>1.7.7</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- Protobuf -->
     <dependency>
       <groupId>org.fusesource.hawtbuf</groupId>
       <artifactId>hawtbuf-proto</artifactId>
