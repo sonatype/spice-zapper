@@ -3,9 +3,14 @@ package org.sonatype.spice.zapper.client.hc4;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.sonatype.spice.zapper.Parameters;
@@ -24,10 +29,16 @@ public class Hc4Client
 {
     private final CloseableHttpClient httpClient;
 
-    public Hc4Client( final Parameters parameters, final String remoteUrl, final CloseableHttpClient httpClient )
+    private final CredentialsProvider preemptiveCredentialsProvider;
+
+    public Hc4Client( final Parameters parameters,
+                      final String remoteUrl,
+                      final CloseableHttpClient httpClient,
+                      final CredentialsProvider preemptiveCredentialsProvider)
     {
         super( parameters, remoteUrl );
         this.httpClient = Check.notNull( httpClient, CloseableHttpClient.class );
+        this.preemptiveCredentialsProvider = preemptiveCredentialsProvider;
     }
 
     @Override
@@ -72,7 +83,13 @@ public class Hc4Client
         {
             put.addHeader( "X-Zapper-Track-ID", track.getIdentifier().stringValue() );
         }
-        final HttpResponse response = httpClient.execute( put );
+        final HttpClientContext context = new HttpClientContext();
+        if (preemptiveCredentialsProvider != null) {
+          context.setCredentialsProvider(preemptiveCredentialsProvider);
+          context.setAuthCache(new BasicAuthCache());
+          context.getAuthCache().put(new HttpHost(put.getURI().getHost(), put.getURI().getPort(), put.getURI().getScheme()), new BasicScheme());
+        }
+        final HttpResponse response = httpClient.execute( put, context );
         final StatusLine statusLine = response.getStatusLine();
         EntityUtils.consume( response.getEntity() );
         if ( !( statusLine.getStatusCode() > 199 && statusLine.getStatusCode() < 299 ) )

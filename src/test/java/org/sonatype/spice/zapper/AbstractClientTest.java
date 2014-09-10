@@ -3,7 +3,10 @@ package org.sonatype.spice.zapper;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
@@ -42,6 +45,19 @@ public abstract class AbstractClientTest
         }
     }
 
+    protected List<Handler> getHandlers() {
+      ResourceHandler resourceHandler = new ResourceHandler();
+      resourceHandler.setDirectoriesListed( true );
+      resourceHandler.setWelcomeFiles( new String[] { "index.html" } );
+      resourceHandler.setResourceBase( new File( "target/test-classes/server" ).getAbsolutePath() );
+
+      DeployHandler deployHandler = new DeployHandler( null );
+
+      DefaultHandler defaultHandler = new DefaultHandler();
+
+      return ImmutableList.<Handler>of(resourceHandler, deployHandler, defaultHandler);
+    }
+
     @Before
     public void startJetty()
         throws Exception
@@ -52,15 +68,8 @@ public abstract class AbstractClientTest
         connector.setPort( port );
         server.addConnector( connector );
 
-        ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setDirectoriesListed( true );
-        resourceHandler.setWelcomeFiles( new String[] { "index.html" } );
-        resourceHandler.setResourceBase( new File( "target/test-classes/server" ).getAbsolutePath() );
-
-        DeployHandler deployHandler = new DeployHandler( null );
-
         HandlerList handlers = new HandlerList();
-        handlers.setHandlers( new Handler[] { resourceHandler, deployHandler, new DefaultHandler() } );
+        handlers.setHandlers(getHandlers().toArray(new Handler[0]));
         server.setHandler( handlers );
 
         server.start();

@@ -22,10 +22,13 @@ public class Hc4ClientBuilder
 
     private CredentialsProvider credentialsProvider;
 
+    private boolean preemptiveAuth;
+
     public Hc4ClientBuilder( final Parameters parameters, final String remoteUrl )
     {
         this.parameters = Check.notNull( parameters, Parameters.class );
         this.remoteUrl = Check.notNull( remoteUrl, "Remote URL is null!" );
+        this.preemptiveAuth = false;
     }
 
     public Hc4ClientBuilder withProxy( final HttpHost proxyServer )
@@ -40,17 +43,24 @@ public class Hc4ClientBuilder
         return this;
     }
 
+    public Hc4ClientBuilder withPreemptiveRealm( final CredentialsProvider credentialsProvider )
+    {
+        this.credentialsProvider = credentialsProvider;
+        this.preemptiveAuth  = true;
+        return this;
+    }
+
     public Hc4Client build()
     {
-      final Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-          .register("http", PlainConnectionSocketFactory.getSocketFactory())
-          .register("https", SSLConnectionSocketFactory.getSystemSocketFactory()).build();
+        final Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+            .register("http", PlainConnectionSocketFactory.getSocketFactory())
+            .register("https", SSLConnectionSocketFactory.getSystemSocketFactory()).build();
 
-      final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(registry);
-      cm.setMaxTotal(200);
-      cm.setDefaultMaxPerRoute(parameters.getMaximumTrackCount());
+        final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(registry);
+        cm.setMaxTotal(200);
+        cm.setDefaultMaxPerRoute(parameters.getMaximumTrackCount());
 
-      final HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().setConnectionManager(cm).setUserAgent("Zapper/1.0-HC4");
+        final HttpClientBuilder httpClientBuilder = HttpClientBuilder.create().setConnectionManager(cm).setUserAgent("Zapper/1.0-HC4");
 
         if ( proxyServer != null )
         {
@@ -61,6 +71,6 @@ public class Hc4ClientBuilder
           httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
         }
 
-        return new Hc4Client( parameters, remoteUrl, httpClientBuilder.build() );
+        return new Hc4Client( parameters, remoteUrl, httpClientBuilder.build(), preemptiveAuth ? credentialsProvider : null );
     }
 }
