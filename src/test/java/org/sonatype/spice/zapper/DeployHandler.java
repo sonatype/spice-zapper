@@ -20,7 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.http.HttpMethods;
+import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Dispatcher;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -108,7 +108,7 @@ public class DeployHandler
       return;
     }
 
-    if (HttpMethods.PUT.equals(request.getMethod())) {
+    if (HttpMethod.PUT.is(request.getMethod())) {
       System.out.println("PUT " + request.getRequestURI());
       // let's make client push the content too
       consumeStream(request.getInputStream());
