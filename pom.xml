@@ -48,7 +48,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-    <hawtbuf.version>1.9</hawtbuf.version>
+    <hawtbuf.version>1.11</hawtbuf.version>
   </properties>
 
   <dependencies>
@@ -57,7 +57,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.7</version>
+      <version>1.7.28</version>
     </dependency>
 
     <!-- Guava -->
